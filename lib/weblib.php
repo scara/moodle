@@ -903,30 +903,35 @@ function get_file_argument() {
         return $relativepath;
     }
     $relativepath = false;
+    $pathinfo = null;
+    if (isset($_SERVER['PATH_INFO'])) {
+        $pathinfo = $_SERVER['PATH_INFO'];
+    } else if (isset($_SERVER['ORIG_PATH_INFO'])) {
+        $pathinfo = $_SERVER['ORIG_PATH_INFO'];
+    }
 
     // then try extract file from the slasharguments
     if (stripos($_SERVER['SERVER_SOFTWARE'], 'iis') !== false) {
-        // NOTE: ISS tends to convert all file paths to single byte DOS encoding,
+        // NOTE: IIS tends to convert all file paths to single byte DOS encoding,
         //       we can not use other methods because they break unicode chars,
         //       the only way is to use URL rewriting
-        if (isset($_SERVER['PATH_INFO']) and $_SERVER['PATH_INFO'] !== '') {
+        if (isset($pathinfo) and $pathinfo !== '') {
             // check that PATH_INFO works == must not contain the script name
-            if (strpos($_SERVER['PATH_INFO'], $SCRIPT) === false) {
-                $relativepath = clean_param(urldecode($_SERVER['PATH_INFO']), PARAM_PATH);
+            if (strpos($pathinfo, $SCRIPT) === false) {
+                $relativepath = clean_param(urldecode($pathinfo), PARAM_PATH);
             }
         }
     } else {
         // all other apache-like servers depend on PATH_INFO
-        if (isset($_SERVER['PATH_INFO'])) {
-            if (isset($_SERVER['SCRIPT_NAME']) and strpos($_SERVER['PATH_INFO'], $_SERVER['SCRIPT_NAME']) === 0) {
-                $relativepath = substr($_SERVER['PATH_INFO'], strlen($_SERVER['SCRIPT_NAME']));
+        if (isset($pathinfo)) {
+            if (isset($_SERVER['SCRIPT_NAME']) and strpos($pathinfo, $_SERVER['SCRIPT_NAME']) === 0) {
+                $relativepath = substr($pathinfo, strlen($_SERVER['SCRIPT_NAME']));
             } else {
-                $relativepath = $_SERVER['PATH_INFO'];
+                $relativepath = $pathinfo;
             }
             $relativepath = clean_param($relativepath, PARAM_PATH);
         }
     }
-
 
     return $relativepath;
 }
