@@ -441,6 +441,14 @@ class enrolment_plugin_mnet {
         if ($mnetrequest->send($mnet_sp) === true) {
             $courses = $mnetrequest->response;
 
+            // MDL-32979 - Fix the MNet response: see the tracker for the details
+            $fixed_courses_response = array();
+            foreach ($courses as $course) {
+                $course = (object)$course;
+                $fixed_courses_response[$course->remoteid] = $course;
+            }
+            $courses = $fixed_courses_response;
+
             // get the cached courses key'd on remote id - only need remoteid and id fields
             $cachedcourses = get_records('mnet_enrol_course',
                                          'hostid', $mnethostid,
@@ -448,13 +456,10 @@ class enrolment_plugin_mnet {
 
             // Update cache and transform $courses into objects
             // in-place for the benefit of our caller...
-            for ($n=0;$n<count($courses);$n++) {
-
-                $course = &$courses[$n];
+            foreach($courses as $course){
 
                 // add/update cached data in mnet_enrol_courses
                 // sanitise data 
-                $course = (object)$course;
                 $course->remoteid        = (int)$course->remoteid;
                 $course->hostid          = $mnethostid;
                 $course->cat_id          = (int)$course->cat_id;
