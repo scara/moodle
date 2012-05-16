@@ -163,7 +163,10 @@ function scorm_parse_aicc($pkgdir,$scormid) {
                 if (preg_match($regexp,$rows[$i],$matches)) {
                     for ($j=0;$j<count($columns->columns);$j++) {
                         if ($j != $columns->mastercol) {
-                            $courses[$courseid]->elements[substr(trim($matches[$j+1]),1,-1)]->parent = substr(trim($matches[$columns->mastercol+1]),1,-1);
+                            $element = substr(trim($matches[$j+1]),1,-1);
+                            if (!empty($element)) {
+                                $courses[$courseid]->elements[$element]->parent = substr(trim($matches[$columns->mastercol+1]),1,-1);
+                            }
                         }
                     }
                 }
@@ -237,59 +240,63 @@ function scorm_parse_aicc($pkgdir,$scormid) {
                     } else {
                         $sco->parent = $element->parent;
                     }
+                    $sco->launch = '';
+                    $sco->scormtype = '';
+                    $sco->previous = 0;
+                    $sco->next = 0;
+                    $id = null;
+                    // Is it an Assignable Unit (AU)?
                     if (isset($element->file_name)) {
                         $sco->launch = $element->file_name;
                         $sco->scormtype = 'sco';
-                        $sco->previous = 0;
-                        $sco->next = 0;
-                        $id = null;
-                        if ($oldscoid = scorm_array_search('identifier',$sco->identifier,$oldscoes)) {
-                            $sco->id = $oldscoid;
-                            if(update_record('scorm_scoes',addslashes_recursive($sco))) {
-                                $id = $oldscoid;
-                            }
-                            delete_records('scorm_scoes_data','scoid',$oldscoid);
-                            unset($oldscoes[$oldscoid]);
-                        } else {
-                            $id = insert_record('scorm_scoes',addslashes_recursive($sco));
+                    }
+                    if ($oldscoid = scorm_array_search('identifier',$sco->identifier,$oldscoes)) {
+                        $sco->id = $oldscoid;
+                        if(update_record('scorm_scoes',addslashes_recursive($sco))) {
+                            $id = $oldscoid;
                         }
-                        if (!empty($id)) {
-                            unset($scodata);
-                            $scodata->scoid = $id;
-                            if (isset($element->web_launch)) {
-                                $scodata->name = 'parameters';
-                                $scodata->value = $element->web_launch;
-                                $dataid = insert_record('scorm_scoes_data',addslashes_recursive($scodata));
-                            }
-                            if (isset($element->prerequisites)) {
-                                $scodata->name = 'prerequisites';
-                                $scodata->value = $element->prerequisites;
-                                $dataid = insert_record('scorm_scoes_data',addslashes_recursive($scodata));
-                            }
-                            if (isset($element->max_time_allowed)) {
-                                $scodata->name = 'max_time_allowed';
-                                $scodata->value = $element->max_time_allowed;
-                                $dataid = insert_record('scorm_scoes_data',addslashes_recursive($scodata));
-                            }
-                            if (isset($element->time_limit_action)) {
-                                $scodata->name = 'time_limit_action';
-                                $scodata->value = $element->time_limit_action;
-                                $dataid = insert_record('scorm_scoes_data',addslashes_recursive($scodata));
-                            }
-                            if (isset($element->mastery_score)) {
-                                $scodata->name = 'mastery_score';
-                                $scodata->value = $element->mastery_score;
-                                $dataid = insert_record('scorm_scoes_data',addslashes_recursive($scodata));
-                            }
-                            if (isset($element->core_vendor)) {
-                                $scodata->name = 'datafromlms';
-                                $scodata->value = eregi_replace('<cr>', "\r\n", $element->core_vendor);
-                                $dataid = insert_record('scorm_scoes_data',addslashes_recursive($scodata));
-                            }
+                        delete_records('scorm_scoes_data','scoid',$oldscoid);
+                        unset($oldscoes[$oldscoid]);
+                    } else {
+                        $id = insert_record('scorm_scoes',addslashes_recursive($sco));
+                    }
+
+                    if (!empty($id)) {
+                        unset($scodata);
+                        $scodata->scoid = $id;
+                        if (isset($element->web_launch)) {
+                            $scodata->name = 'parameters';
+                            $scodata->value = $element->web_launch;
+                            $dataid = insert_record('scorm_scoes_data',addslashes_recursive($scodata));
                         }
-                        if ($launch==0) {
-                            $launch = $id;
+                        if (isset($element->prerequisites)) {
+                            $scodata->name = 'prerequisites';
+                            $scodata->value = $element->prerequisites;
+                            $dataid = insert_record('scorm_scoes_data',addslashes_recursive($scodata));
                         }
+                        if (isset($element->max_time_allowed)) {
+                            $scodata->name = 'max_time_allowed';
+                            $scodata->value = $element->max_time_allowed;
+                            $dataid = insert_record('scorm_scoes_data',addslashes_recursive($scodata));
+                        }
+                        if (isset($element->time_limit_action)) {
+                            $scodata->name = 'time_limit_action';
+                            $scodata->value = $element->time_limit_action;
+                            $dataid = insert_record('scorm_scoes_data',addslashes_recursive($scodata));
+                        }
+                        if (isset($element->mastery_score)) {
+                            $scodata->name = 'mastery_score';
+                            $scodata->value = $element->mastery_score;
+                            $dataid = insert_record('scorm_scoes_data',addslashes_recursive($scodata));
+                        }
+                        if (isset($element->core_vendor)) {
+                            $scodata->name = 'datafromlms';
+                            $scodata->value = eregi_replace('<cr>', "\r\n", $element->core_vendor);
+                            $dataid = insert_record('scorm_scoes_data',addslashes_recursive($scodata));
+                        }
+                    }
+                    if ($launch==0) {
+                        $launch = $id;
                     }
                 }
             }
@@ -369,8 +376,9 @@ function scorm_get_toc($user,$scorm,$liststyle,$currentorg='',$scoid='',$mode='n
             if (!isset($sco->isvisible) || (isset($sco->isvisible) && ($sco->isvisible == 'true'))) {
                 $isvisible = true;
             }
-            if ($parents[$level]!=$sco->parent) {
-                if ($newlevel = array_search($sco->parent,$parents)) {
+            if ($parents[$level] != $sco->parent) {
+                $newlevel = array_search($sco->parent,$parents);
+                if ($newlevel !== false) {
                     for ($i=0; $i<($level-$newlevel); $i++) {
                         $result->toc .= "\t\t</ul></li>\n";
                     }
@@ -393,7 +401,7 @@ function scorm_get_toc($user,$scorm,$liststyle,$currentorg='',$scoid='',$mode='n
                         $result->toc .= $closelist;
                         $level = $i;
                     }
-                    $parents[$level]=$sco->parent;
+                    $parents[$level] = $sco->parent;
                 }
             }
             if ($isvisible) {
