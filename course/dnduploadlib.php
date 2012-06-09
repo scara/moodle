@@ -381,6 +381,9 @@ class dndupload_ajax_processor {
     /** @var dndupload_handler used to check the allowed file types */
     protected $dnduploadhandler = null;
 
+    /** @var string The name of the file being uploaded */
+    protected $filename = null;
+
     /** @var string The name to give the new activity instance */
     protected $displayname = null;
 
@@ -477,6 +480,7 @@ class dndupload_ajax_processor {
         if (empty($this->displayname)) {
             $this->displayname = $this->display_name_from_file($details['file']);
         }
+        $this->filename = $details['file'];
 
         // Create a course module to hold the new instance.
         $this->create_course_module();
@@ -589,6 +593,7 @@ class dndupload_ajax_processor {
             $data->content = $content;
         }
         $data->coursemodule = $this->cm->id;
+        $data->filename = $this->filename;
         $data->displayname = $this->displayname;
         return $data;
     }
