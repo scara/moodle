@@ -1244,5 +1244,20 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2012092600.00);
     }
 
+    if ($oldversion < 2012092700.01) {
+        // MDL-35622 Add support for SMART Notebook MIME types
+        $select = $DB->sql_like('filename', '?', false);
+        $DB->set_field_select(
+            'files',
+            'mimetype',
+            'application/x-smarttech-notebook',
+            $select,
+            array('%.gallery', '%.galleryitem', '%.gallerycollection', '%.nbk', '%.notebook', '%.xbk')
+        );
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2012092700.01);
+    }
+
     return true;
 }
