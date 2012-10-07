@@ -70,7 +70,11 @@ class tool_customlang_utils {
             foreach ($pluginlist as $name => $ununsed) {
                 if ($type == 'mod') {
                     if (array_key_exists($name, $list)) {
-                        throw new Exception('Activity module and core subsystem name collision');
+                        throw new Exception(
+                            "Found an activity module name, '$name',".
+                            ' colliding with those reserved for the core subsystem.'.
+                            " Please rename/remove the folder 'mod/$name'."
+                        );
                     }
                     $list[$name] = $type.'_'.$name;
                 } else {
