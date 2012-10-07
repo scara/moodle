@@ -151,7 +151,7 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
             scorm_resize_frame();
 
             var left = scorm_layout_widget.getUnitByPosition('left');
-            if (left.expanded) {
+            if (left.expand) {
                 scorm_current_node.focus();
             }
             if (scorm_hide_nav == false) {
@@ -387,6 +387,15 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
         }
         tree.expandAll();
         tree.render();
+
+        // On getting the window, always set the focus on the current item
+        YAHOO.util.Event.on(window, 'focus', function (e) {
+            var current = scorm_tree_node.getHighlightedNode();
+            var left = scorm_layout_widget.getUnitByPosition('left');
+            if (current && left.expand) {
+                current.focus();
+            }
+        });
 
         // navigation
         if (scorm_hide_nav == false) {
