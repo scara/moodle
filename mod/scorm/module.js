@@ -380,7 +380,7 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
                 result = scorm_ajax_request(M.cfg.wwwroot + '/mod/scorm/datamodels/sequencinghandler.php?', datastring);
                 mod_scorm_seq = encodeURIComponent(result);
                 result = JSON.parse (result);
-                if (typeof result.nextactivity.id != undefined) {
+                if (typeof result.nextactivity.id != 'undefined') {
                         var node = scorm_prev(scorm_tree_node.getHighlightedNode())
                         if (node == null) {
                                 // Avoid use of TreeView for Navigation
@@ -406,7 +406,7 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
                 result = scorm_ajax_request(M.cfg.wwwroot + '/mod/scorm/datamodels/sequencinghandler.php?', datastring);
                 mod_scorm_seq = encodeURIComponent(result);
                 result = JSON.parse (result);
-                if (typeof result.nextactivity.id != undefined) {
+                if (typeof result.nextactivity.id != 'undefined') {
                         var node = scorm_next(scorm_tree_node.getHighlightedNode())
                         if (node == null) {
                                 // Avoid use of TreeView for Navigation
