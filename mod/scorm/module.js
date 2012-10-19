@@ -144,7 +144,7 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
             }
             var old = Y.YUI2.util.Dom.get('scorm_object');
             if (old) {
-                if(window_name && node.title != null) {
+                if (window_name && node.title != null) {
                     var cwidth = scormplayerdata.cwidth;
                     var cheight = scormplayerdata.cheight;
                     var poptions = scormplayerdata.popupoptions;
@@ -178,23 +178,51 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
          */
         var scorm_fixnav = function() {
             // nav_skipprev
-            scorm_buttons[0].set('disabled', (scorm_skipprev(scorm_current_node) == null || scorm_skipprev(scorm_current_node).title == null ||
-                        scoes_nav[launch_sco].hideprevious == 1));
+            scorm_buttons[0].set(
+                'disabled',
+                (
+                    scorm_skipprev(scorm_current_node) == null ||
+                    scorm_skipprev(scorm_current_node).title == null ||
+                    scoes_nav[launch_sco].hideprevious == 1
+                )
+            );
             // nav_prev
-            scorm_buttons[1].set('disabled', (scorm_prev(scorm_current_node) == null || scorm_prev(scorm_current_node).title == null ||
-                        scoes_nav[launch_sco].hideprevious == 1));
+            scorm_buttons[1].set(
+                'disabled', (
+                    scorm_prev(scorm_current_node) == null ||
+                    scorm_prev(scorm_current_node).title == null ||
+                    scoes_nav[launch_sco].hideprevious == 1
+                )
+            );
             // nav_up
-            scorm_buttons[2].set('disabled', (scorm_up(scorm_current_node) == null) || scorm_up(scorm_current_node).title == null);
+            scorm_buttons[2].set(
+                'disabled',(
+                    scorm_up(scorm_current_node) == null ||
+                    scorm_up(scorm_current_node).title == null
+                )
+            );
             // nav_next
-            scorm_buttons[3].set('disabled', (((scorm_next(scorm_current_node) == null || scorm_next(scorm_current_node).title == null) &&
-                        (scoes_nav[launch_sco].flow != 1)) || (scoes_nav[launch_sco].hidecontinue == 1)));
+            scorm_buttons[3].set(
+                'disabled', (
+                    (
+                        (scorm_next(scorm_current_node) == null || scorm_next(scorm_current_node).title == null) &&
+                        (scoes_nav[launch_sco].flow != 1)
+                    ) ||
+                    (scoes_nav[launch_sco].hidecontinue == 1)
+                )
+            );
             // nav_skipnext
-            scorm_buttons[4].set('disabled', (scorm_skipnext(scorm_current_node) == null || scorm_skipnext(scorm_current_node).title == null ||
-                        scoes_nav[launch_sco].hidecontinue == 1));
+            scorm_buttons[4].set(
+                'disabled',(
+                    scorm_skipnext(scorm_current_node) == null ||
+                    scorm_skipnext(scorm_current_node).title == null ||
+                    scoes_nav[launch_sco].hidecontinue == 1
+                )
+            );
         };
 
         var scorm_resize_parent = function() {
-            // fudge  IE7 to redraw the screen
+            // fudge IE7 to redraw the screen
             parent.resizeBy(-10, -10);
             parent.resizeBy(10, 10);
             var ifr = Y.YUI2.util.Dom.get('scorm_object');
@@ -374,22 +402,22 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
 
         // Launch prev sco
         var scorm_launch_prev_sco = function() {
-                var result = null;
-                if (scoes_nav[launch_sco].flow == 1) {
+            var result = null;
+            if (scoes_nav[launch_sco].flow == 1) {
                 var datastring = scoes_nav[launch_sco].url + '&function=scorm_seq_flow&request=backward';
                 result = scorm_ajax_request(M.cfg.wwwroot + '/mod/scorm/datamodels/sequencinghandler.php?', datastring);
                 mod_scorm_seq = encodeURIComponent(result);
-                result = JSON.parse (result);
+                result = JSON.parse(result);
                 if (typeof result.nextactivity.id != 'undefined') {
-                        var node = scorm_prev(scorm_tree_node.getHighlightedNode())
-                        if (node == null) {
-                                // Avoid use of TreeView for Navigation
-                                node = scorm_tree_node.getHighlightedNode();
-                        }
-                        node.title = scoes_nav[result.nextactivity.id].url;
-                        launch_sco = result.nextactivity.id;
-                        scorm_activate_item(node);
-                        scorm_fixnav();
+                    var node = scorm_prev(scorm_tree_node.getHighlightedNode())
+                    if (node == null) {
+                        // Avoid use of TreeView for Navigation
+                        node = scorm_tree_node.getHighlightedNode();
+                    }
+                    node.title = scoes_nav[result.nextactivity.id].url;
+                    launch_sco = result.nextactivity.id;
+                    scorm_activate_item(node);
+                    scorm_fixnav();
                 } else {
                         scorm_activate_item(scorm_prev(scorm_tree_node.getHighlightedNode(), true));
                 }
@@ -400,24 +428,24 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
 
         // Launch next sco
         var scorm_launch_next_sco = function () {
-                var result = null;
-                if (scoes_nav[launch_sco].flow == 1) {
+            var result = null;
+            if (scoes_nav[launch_sco].flow == 1) {
                 var datastring = scoes_nav[launch_sco].url + '&function=scorm_seq_flow&request=forward';
                 result = scorm_ajax_request(M.cfg.wwwroot + '/mod/scorm/datamodels/sequencinghandler.php?', datastring);
                 mod_scorm_seq = encodeURIComponent(result);
-                result = JSON.parse (result);
+                result = JSON.parse(result);
                 if (typeof result.nextactivity.id != 'undefined') {
-                        var node = scorm_next(scorm_tree_node.getHighlightedNode())
-                        if (node == null) {
-                                // Avoid use of TreeView for Navigation
-                                node = scorm_tree_node.getHighlightedNode();
-                        }
-                        node.title = scoes_nav[result.nextactivity.id].url;
-                        launch_sco = result.nextactivity.id;
-                        scorm_activate_item(node);
-                        scorm_fixnav();
+                    var node = scorm_next(scorm_tree_node.getHighlightedNode())
+                    if (node == null) {
+                        // Avoid use of TreeView for Navigation
+                        node = scorm_tree_node.getHighlightedNode();
+                    }
+                    node.title = scoes_nav[result.nextactivity.id].url;
+                    launch_sco = result.nextactivity.id;
+                    scorm_activate_item(node);
+                    scorm_fixnav();
                 } else {
-                        scorm_activate_item(scorm_next(scorm_tree_node.getHighlightedNode(), true));
+                    scorm_activate_item(scorm_next(scorm_tree_node.getHighlightedNode(), true));
                 }
              } else {
                  scorm_activate_item(scorm_next(scorm_tree_node.getHighlightedNode(), true));
@@ -487,7 +515,8 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
             if (node.title == '' || node.title == null) {
                 return; //this item has no navigation
             }
-            // the item has been selected using a choice client side => launch_sco must be updated
+            // the item has been selected using a navigation action (choice)
+            // at client side: launch_sco must be updated
             launch_sco = node.title.match(/scoid=(\d+)/)[1];
             scorm_activate_item(node);
             if (node.children.length) {
@@ -522,8 +551,11 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
 
         // navigation
         if (scorm_hide_nav == false) {
-            scorm_nav_panel = new Y.YUI2.widget.Panel('scorm_navpanel', { visible:true, draggable:true, close:false, xy: [250, 450],
-                                                                    autofillheight: "body"} );
+            scorm_nav_panel = new Y.YUI2.widget.Panel('scorm_navpanel', {
+                visible:true, draggable:true, close:false,
+                xy: [250, 450],
+                autofillheight: "body"
+            });
             scorm_nav_panel.setHeader(M.str.scorm.navigation);
 
             //TODO: make some better&accessible buttons
