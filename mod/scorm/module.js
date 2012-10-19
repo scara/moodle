@@ -536,7 +536,21 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
 
         // finally activate the chosen item
         var scorm_first_url = tree.getRoot().children[0];
-        scorm_first_url.title = scoes_nav[launch_sco].url;
+        candidate_nodes = tree.getNodesBy(
+            is_launch_sco = function(node) {
+                if (node.title) {
+                    expression = new RegExp('scoid=' + launch_sco);
+                    matches = node.title.match(expression);
+                    return (matches != null);
+                }
+                return false;
+            }
+        );
+        // found a candidate in the tree?
+        if (candidate_nodes) {
+            // if yes, take the first and only
+            scorm_first_url = candidate_nodes[0];
+        }
         scorm_activate_item(scorm_first_url);
 
         // resizing
