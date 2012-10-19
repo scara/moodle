@@ -87,7 +87,8 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
                 el_old_api.parentNode.removeChild(el_old_api);
             }
 
-            if (node.title) {
+            // we need to expose the API only in case of a launch-able content (manifest//resource@href)
+            if (node.title && scoes_nav[launch_sco].launch) {
                 var el_scorm_api = document.getElementById("external-scormapi");
                 el_scorm_api.parentNode.removeChild(el_scorm_api);
                 el_scorm_api = document.createElement('script');
@@ -114,7 +115,12 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
                     }
                 }
                 else {
-                    var obj = document.createElement('<iframe id="scorm_object" src="'+url_prefix + node.title+'">');
+                    // point to the launch-able content (manifest//resource@href)
+                    var obj = document.createElement(
+                        '<iframe id="scorm_object"'
+                        + (scoes_nav[launch_sco].launch ? ' src="' + url_prefix + node.title + '"' : '')
+                        + '>'
+                    );
                 }
                 // fudge IE7 to redraw the screen
                 if (Y.YUI2.env.ua.ie > 5 && Y.YUI2.env.ua.ie < 8) {
@@ -124,7 +130,8 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
                 var obj = document.createElement('object');
                 obj.setAttribute('id', 'scorm_object');
                 obj.setAttribute('type', 'text/html');
-                if (!window_name && node.title != null) {
+                if (!window_name && (node.title != null) && scoes_nav[launch_sco].launch) {
+                    // point to the launch-able content (manifest//resource@href)
                     obj.setAttribute('data', url_prefix + node.title);
                 }
                 if (window_name) {
@@ -137,11 +144,14 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
             }
             var old = Y.YUI2.util.Dom.get('scorm_object');
             if (old) {
-                if(window_name) {
+                if(window_name && node.title != null) {
                     var cwidth = scormplayerdata.cwidth;
                     var cheight = scormplayerdata.cheight;
                     var poptions = scormplayerdata.popupoptions;
-                    scorm_openpopup(M.cfg.wwwroot + "/mod/scorm/loadSCO.php?" + node.title, window_name, poptions, cwidth, cheight);
+                    // point to the launch-able content (manifest//resource@href)
+                    if (scoes_nav[launch_sco].launch) {
+                        scorm_openpopup(M.cfg.wwwroot + "/mod/scorm/loadSCO.php?" + node.title, window_name, poptions, cwidth, cheight);
+                    }
                 } else {
                     content.replaceChild(obj, old);
                 }
@@ -167,13 +177,18 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
          * @return void
          */
         var scorm_fixnav = function() {
+            // nav_skipprev
             scorm_buttons[0].set('disabled', (scorm_skipprev(scorm_current_node) == null || scorm_skipprev(scorm_current_node).title == null ||
                         scoes_nav[launch_sco].hideprevious == 1));
+            // nav_prev
             scorm_buttons[1].set('disabled', (scorm_prev(scorm_current_node) == null || scorm_prev(scorm_current_node).title == null ||
                         scoes_nav[launch_sco].hideprevious == 1));
+            // nav_up
             scorm_buttons[2].set('disabled', (scorm_up(scorm_current_node) == null) || scorm_up(scorm_current_node).title == null);
+            // nav_next
             scorm_buttons[3].set('disabled', (((scorm_next(scorm_current_node) == null || scorm_next(scorm_current_node).title == null) &&
                         (scoes_nav[launch_sco].flow != 1)) || (scoes_nav[launch_sco].hidecontinue == 1)));
+            // nav_skipnext
             scorm_buttons[4].set('disabled', (scorm_skipnext(scorm_current_node) == null || scorm_skipnext(scorm_current_node).title == null ||
                         scoes_nav[launch_sco].hidecontinue == 1));
         };
@@ -468,9 +483,12 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
         scorm_tree_node = tree;
         tree.singleNodeHighlight = true;
         tree.subscribe('labelClick', function(node) {
+            //TODO: lock the item when IMSSS Choice has been disabled, too
             if (node.title == '' || node.title == null) {
                 return; //this item has no navigation
             }
+            // the item has been selected using a choice client side => launch_sco must be updated
+            launch_sco = node.title.match(/scoid=(\d+)/)[1];
             scorm_activate_item(node);
             if (node.children.length) {
                 scorm_bloody_labelclick = true;
@@ -516,26 +534,34 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
             scorm_buttons[2] = new Y.YUI2.widget.Button('nav_up');
             scorm_buttons[3] = new Y.YUI2.widget.Button('nav_next');
             scorm_buttons[4] = new Y.YUI2.widget.Button('nav_skipnext');
+
+            // nav_skipprev
             scorm_buttons[0].on('click', function(ev) {
                 scorm_activate_item(scorm_skipprev(scorm_tree_node.getHighlightedNode(), true));
             });
+            // nav_prev
             scorm_buttons[1].on('click', function(ev) {
                 scorm_launch_prev_sco();
             });
+            // nav_up
             scorm_buttons[2].on('click', function(ev) {
                 scorm_activate_item(scorm_up(scorm_tree_node.getHighlightedNode(), true));
             });
+            // nav_next
             scorm_buttons[3].on('click', function(ev) {
                 scorm_launch_next_sco();
             });
+            // nav_skipnext
             scorm_buttons[4].on('click', function(ev) {
                 scorm_activate_item(scorm_skipnext(scorm_tree_node.getHighlightedNode(), true));
             });
+
             scorm_nav_panel.render();
         }
 
         // finally activate the chosen item
         var scorm_first_url = tree.getRoot().children[0];
+        // find the node required to be launched (launch_sco)
         candidate_nodes = tree.getNodesBy(
             is_launch_sco = function(node) {
                 if (node.title) {
