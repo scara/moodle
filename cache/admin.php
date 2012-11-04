@@ -122,6 +122,9 @@ if (!empty($action) && confirm_sesskey()) {
                     echo $OUTPUT->footer();
                     exit;
                 } else {
+                    // Purge the store cache
+                    cache_helper::purge_store($store);
+                    // Delete the store instance
                     $writer = cache_config_writer::instance();
                     $writer->delete_store_instance($store);
                     redirect($PAGE->url, get_string('deletestoresuccess', 'cache'), 5);

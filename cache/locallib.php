@@ -283,8 +283,18 @@ class cache_config_writer extends cache_config {
                 throw new cache_exception('You cannot delete a cache store that has definition mappings.');
             }
         }
+
+        // Load the configuration
+        $config = $this->configstores[$name];
+        // In case of file store, remove the folder if the 'path' was 'autocreate'd
+        if (('file' == $config['plugin']) && !empty($config['configuration']['autocreate'])) {
+            @rmdir($config['configuration']['path']);
+        }
+
+        // Remove the instance configuration and update the stores configuration
         unset($this->configstores[$name]);
         $this->config_save();
+
         return true;
     }
 
