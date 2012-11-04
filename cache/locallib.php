@@ -778,9 +778,15 @@ abstract class cache_administration_helper extends cache_helper {
         }
 
         $locks = self::get_possible_locks_for_stores($plugindir, $plugin);
-
         $url = new moodle_url('/cache/admin.php', array('action' => 'editstore'));
-        return new $class($url, array('plugin' => $plugin, 'store' => $store, 'locks' => $locks));
+
+        $store_form = new $class($url, array('plugin' => $plugin, 'store' => $store, 'locks' => $locks));
+        // Load the configuration, if any
+        if (isset($stores[$store])) {
+            $store_form->set_data($stores[$store]['configuration']);
+        }
+
+        return $store_form;
     }
 
     /**
