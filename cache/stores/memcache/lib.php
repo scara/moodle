@@ -110,6 +110,12 @@ class cachestore_memcache implements cache_store {
     }
 
     /**
+     * Performs any necessary operation when the store instance has been created.
+     */
+    public function instance_created() {
+    }
+
+    /**
      * Initialises the cache.
      *
      * Once this has been done the cache is all set to be used.
@@ -357,6 +363,15 @@ class cachestore_memcache implements cache_store {
      */
     public function cleanup() {
         $this->purge();
+    }
+
+    /**
+     * Performs any necessary operation when the store instance is being deleted,
+     * regardless the store being initialised with a definition ({@link initialise()}).
+     *
+     * @see cleanup()
+     */
+    public function instance_deleted() {
     }
 
     /**

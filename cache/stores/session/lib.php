@@ -74,6 +74,12 @@ class cachestore_session extends session_data_store implements cache_store, cach
     }
 
     /**
+     * Performs any necessary operation when the store instance has been created.
+     */
+    public function instance_created() {
+    }
+
+    /**
      * Returns the supported features as a combined int.
      *
      * @param array $configuration
@@ -348,6 +354,15 @@ class cachestore_session extends session_data_store implements cache_store, cach
      */
     public function cleanup() {
         $this->purge();
+    }
+
+    /**
+     * Performs any necessary operation when the store instance is being deleted,
+     * regardless the store being initialised with a definition ({@link initialise()}).
+     *
+     * @see cleanup()
+     */
+    public function instance_deleted() {
     }
 
     /**

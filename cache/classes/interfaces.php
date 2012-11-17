@@ -348,6 +348,13 @@ interface cache_store {
     public function __construct($name, array $configuration = array());
 
     /**
+     * Performs any necessary operation when the store instance has been created.
+     *
+     * @link http://tracker.moodle.org/browse/MDL-36363
+     */
+    public function instance_created();
+
+    /**
      * Returns the name of this store instance.
      * @return string
      */
@@ -437,8 +444,23 @@ interface cache_store {
 
     /**
      * Performs any necessary clean up when the store instance is being deleted.
+     *
+     * Please note that if the store has been already initialised with
+     * a definition ({@link initialise()}), cleanup will be performed against the scope
+     * of that definition.
+     *
+     * @see instance_deleted()
      */
     public function cleanup();
+
+    /**
+     * Performs any necessary operation when the store instance is being deleted,
+     * regardless the store being initialised with a definition ({@link initialise()}).
+     *
+     * @link http://tracker.moodle.org/browse/MDL-36363
+     * @see cleanup()
+     */
+    public function instance_deleted();
 
     /**
      * Generates an instance of the cache store that can be used for testing.

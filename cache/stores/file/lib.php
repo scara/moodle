@@ -49,6 +49,12 @@ class cachestore_file implements cache_store, cache_is_key_aware {
      * The path to use for the file storage.
      * @var string
      */
+    protected $filestorepath = null;
+
+    /**
+     * The path to use when the store instance has been initialised.
+     * @var string
+     */
     protected $path = null;
 
     /**
@@ -129,7 +135,9 @@ class cachestore_file implements cache_store, cache_is_key_aware {
             $path = make_cache_directory('cachestore_file/'.preg_replace('#[^a-zA-Z0-9\.\-_]+#', '', $name));
         }
         $this->isready = $path !== false;
+        $this->filestorepath = $path;
         $this->path = $path;
+
         // Check if we should prescan the directory.
         if (array_key_exists('prescan', $configuration)) {
             $this->prescan = (bool)$configuration['prescan'];
@@ -143,6 +151,26 @@ class cachestore_file implements cache_store, cache_is_key_aware {
         } else {
             // Default: No, we will use multiple directories.
             $this->singledirectory = false;
+        }
+    }
+
+    /**
+     * Performs any necessary operation when the file store instance has been created.
+     */
+    public function instance_created() {
+        global $CFG;
+
+        if ($this->isready && $this->autocreate) {
+            // It is supposed the administrator expects the folder to be empty
+            // BIG WARNING HERE: what about an administrator to use a system path?
+            // Rare, permissions required, but this code below could destroy that folder!
+            $files = glob($this->filestorepath . '/*', GLOB_MARK | GLOB_NOSORT);
+            if (is_array($files)) {
+                require_once($CFG->libdir .'/filelib.php');
+                foreach ($files as $filename) {
+                    fulldelete($filename);
+                }
+            }
         }
     }
 
@@ -241,7 +269,7 @@ class cachestore_file implements cache_store, cache_is_key_aware {
     public function initialise(cache_definition $definition) {
         $this->definition = $definition;
         $hash = preg_replace('#[^a-zA-Z0-9]+#', '_', $this->definition->get_id());
-        $this->path .= '/'.$hash;
+        $this->path = $this->filestorepath.'/'.$hash;
         make_writable_directory($this->path);
         if ($this->prescan && $definition->get_mode() !== self::MODE_REQUEST) {
             $this->prescan = false;
@@ -603,14 +631,32 @@ class cachestore_file implements cache_store, cache_is_key_aware {
     }
 
     /**
-     * Performs any necessary clean up when the store instance is being deleted.
+     * Performs any necessary clean up when the file store instance is being deleted.
      *
      * 1. Purges the cache directory.
-     * 2. Deletes the directory we created for this cache instances data.
+     * 2. Deletes the directory we created for the given definition.
      */
     public function cleanup() {
         $this->purge();
         @rmdir($this->path);
+    }
+
+    /**
+     * Performs any necessary operation when the file store instance is being deleted,
+     * regardless the file store being initialised with a definition ({@link initialise()}).
+     *
+     * @see cleanup()
+     */
+    public function instance_deleted() {
+        global $CFG;
+
+        // Remove the folder and its content, if the file store path was 'autocreate'd
+        // BIG WARNING HERE: what about an administrator to use a system path?
+        // Rare, permissions required, but this code below could destroy that folder!
+        if ($this->isready && $this->autocreate) {
+            require_once($CFG->libdir .'/filelib.php');
+            fulldelete($this->filestorepath);
+        }
     }
 
     /**
