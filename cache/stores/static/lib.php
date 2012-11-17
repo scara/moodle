@@ -363,6 +363,7 @@ class cachestore_static extends static_data_store implements cache_store, cache_
      * @see cleanup()
      */
     public function instance_deleted() {
+        $this->cleanup();
     }
 
     /**

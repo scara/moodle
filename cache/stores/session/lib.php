@@ -363,6 +363,7 @@ class cachestore_session extends session_data_store implements cache_store, cach
      * @see cleanup()
      */
     public function instance_deleted() {
+        $this->cleanup();
     }
 
     /**

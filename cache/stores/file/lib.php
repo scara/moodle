@@ -158,19 +158,9 @@ class cachestore_file implements cache_store, cache_is_key_aware {
      * Performs any necessary operation when the file store instance has been created.
      */
     public function instance_created() {
-        global $CFG;
-
-        if ($this->isready && $this->autocreate) {
-            // It is supposed the administrator expects the folder to be empty
-            // BIG WARNING HERE: what about an administrator to use a system path?
-            // Rare, permissions required, but this code below could destroy that folder!
-            $files = glob($this->filestorepath . '/*', GLOB_MARK | GLOB_NOSORT);
-            if (is_array($files)) {
-                require_once($CFG->libdir .'/filelib.php');
-                foreach ($files as $filename) {
-                    fulldelete($filename);
-                }
-            }
+        if ($this->isready && !$this->prescan) {
+            // It is supposed the store instance to expect an empty folder.
+            $this->purge_all_definitions();
         }
     }
 
@@ -540,19 +530,37 @@ class cachestore_file implements cache_store, cache_is_key_aware {
     }
 
     /**
-     * Purges the cache deleting all items within it.
+     * Purges the cache definition deleting all items within it.
      *
      * @return boolean True on success. False otherwise.
      */
     public function purge() {
-        $files = glob($this->glob_keys_pattern(), GLOB_MARK | GLOB_NOSORT);
-        if (is_array($files)) {
-            foreach ($files as $filename) {
-                @unlink($filename);
+        if ($this->isready) {
+            $files = glob($this->glob_keys_pattern(), GLOB_MARK | GLOB_NOSORT);
+            if (is_array($files)) {
+                foreach ($files as $filename) {
+                    @unlink($filename);
+                }
             }
+            $this->keys = array();
         }
-        $this->keys = array();
+
         return true;
+    }
+
+    /**
+     * Purges all the cache definitions deleting all items within them.
+     *
+     * @return boolean True on success. False otherwise.
+     */
+    protected function purge_all_definitions() {
+        // Warning: limit the deletion to what file store is actually able
+        //          to create using the internal {@link purge()} providing the
+        //          {@link $path} with a wildcard to purge all the definitions.
+        $currpath = $this->path;
+        $this->path = $this->filestorepath.'/*';
+        $this->purge();
+        $this->path = $currpath;
     }
 
     /**
@@ -648,14 +656,9 @@ class cachestore_file implements cache_store, cache_is_key_aware {
      * @see cleanup()
      */
     public function instance_deleted() {
-        global $CFG;
-
-        // Remove the folder and its content, if the file store path was 'autocreate'd
-        // BIG WARNING HERE: what about an administrator to use a system path?
-        // Rare, permissions required, but this code below could destroy that folder!
-        if ($this->isready && $this->autocreate) {
-            require_once($CFG->libdir .'/filelib.php');
-            fulldelete($this->filestorepath);
+        if ($this->isready) {
+            // Remove the content related to this file store.
+            $this->purge_all_definitions();
         }
     }
 

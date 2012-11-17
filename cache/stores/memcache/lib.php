@@ -372,6 +372,7 @@ class cachestore_memcache implements cache_store {
      * @see cleanup()
      */
     public function instance_deleted() {
+        $this->cleanup();
     }
 
     /**
