@@ -158,10 +158,6 @@ class cachestore_file implements cache_store, cache_is_key_aware {
      * Performs any necessary operation when the file store instance has been created.
      */
     public function instance_created() {
-        if ($this->isready && !$this->prescan) {
-            // It is supposed the store instance to expect an empty folder.
-            $this->purge_all_definitions();
-        }
     }
 
     /**
@@ -549,21 +545,6 @@ class cachestore_file implements cache_store, cache_is_key_aware {
     }
 
     /**
-     * Purges all the cache definitions deleting all items within them.
-     *
-     * @return boolean True on success. False otherwise.
-     */
-    protected function purge_all_definitions() {
-        // Warning: limit the deletion to what file store is actually able
-        //          to create using the internal {@link purge()} providing the
-        //          {@link $path} with a wildcard to purge all the definitions.
-        $currpath = $this->path;
-        $this->path = $this->filestorepath.'/*';
-        $this->purge();
-        $this->path = $currpath;
-    }
-
-    /**
      * Given the data from the add instance form this function creates a configuration array.
      *
      * @param stdClass $data
@@ -656,10 +637,6 @@ class cachestore_file implements cache_store, cache_is_key_aware {
      * @see cleanup()
      */
     public function instance_deleted() {
-        if ($this->isready) {
-            // Remove the content related to this file store.
-            $this->purge_all_definitions();
-        }
     }
 
     /**
