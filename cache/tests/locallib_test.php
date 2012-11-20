@@ -361,6 +361,7 @@ class cache_administration_helper_phpunit_tests extends advanced_testcase {
         $this->assertArrayHasKey('requirementsmet', $summary);
         $this->assertArrayHasKey('instances', $summary);
         $this->assertArrayHasKey('modes', $summary);
+        $this->assertArrayHasKey('types', $summary);
         $this->assertArrayHasKey('supports', $summary);
         $this->assertArrayHasKey('canaddinstance', $summary);
 

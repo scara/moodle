@@ -95,6 +95,16 @@ class cachestore_session extends session_data_store implements cache_store, cach
     }
 
     /**
+     * Returns the supported types as a combined int.
+     *
+     * @param array $configuration
+     * @return int
+     */
+    public static function get_supported_types(array $configuration = array()) {
+        return self::TYPE_SESSION;
+    }
+
+    /**
      * Returns true if the store requirements are met.
      *
      * @return bool
@@ -111,6 +121,16 @@ class cachestore_session extends session_data_store implements cache_store, cach
      */
     public static function is_supported_mode($mode) {
         return ($mode === self::MODE_SESSION);
+    }
+
+    /**
+     * Returns true if the given type is supported by this store.
+     *
+     * @param int $type One of cache_store::TYPE_*
+     * @return bool
+     */
+    public static function is_supported_type($type) {
+        return ($type === self::TYPE_SESSION);
     }
 
     /**

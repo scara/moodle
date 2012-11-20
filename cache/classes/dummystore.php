@@ -102,6 +102,15 @@ class cachestore_dummy implements cache_store {
     }
 
     /**
+     * Returns the supported type.
+     * @param array $configuration
+     * @return int
+     */
+    public static function get_supported_types(array $configuration = array()) {
+        return self::TYPE_ANY;
+    }
+
+    /**
      * Initialises the store instance for a definition.
      * @param cache_definition $definition
      */
@@ -132,6 +141,15 @@ class cachestore_dummy implements cache_store {
      * @return bool
      */
     public static function is_supported_mode($mode) {
+        return true;
+    }
+
+    /**
+     * Returns true the given type is supported.
+     * @param int $mode
+     * @return bool
+     */
+    public static function is_supported_type($mode) {
         return true;
     }
 

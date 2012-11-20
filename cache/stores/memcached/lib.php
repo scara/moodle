@@ -190,6 +190,16 @@ class cachestore_memcached implements cache_store {
     }
 
     /**
+     * Returns true if the given type is supported by this store.
+     *
+     * @param int $mode One of cache_store::TYPE_*
+     * @return bool
+     */
+    public static function is_supported_type($type) {
+        return ($type === self::TYPE_MEMORY);
+    }
+
+    /**
      * Returns the supported features as a combined int.
      *
      * @param array $configuration
@@ -234,6 +244,16 @@ class cachestore_memcached implements cache_store {
      */
     public static function get_supported_modes(array $configuration = array()) {
         return self::MODE_APPLICATION + self::MODE_SESSION;
+    }
+
+    /**
+     * Returns the supported types as a combined int.
+     *
+     * @param array $configuration
+     * @return int
+     */
+    public static function get_supported_types(array $configuration = array()) {
+        return self::TYPE_MEMORY;
     }
 
     /**

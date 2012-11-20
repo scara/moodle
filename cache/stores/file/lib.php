@@ -186,6 +186,16 @@ class cachestore_file implements cache_store, cache_is_key_aware {
     }
 
     /**
+     * Returns the supported types as a combined int.
+     *
+     * @param array $configuration
+     * @return int
+     */
+    public static function get_supported_types(array $configuration = array()) {
+        return self::TYPE_FILE;
+    }
+
+    /**
      * Returns true if the store requirements are met.
      *
      * @return bool
@@ -202,6 +212,16 @@ class cachestore_file implements cache_store, cache_is_key_aware {
      */
     public static function is_supported_mode($mode) {
         return ($mode === self::MODE_APPLICATION || $mode === self::MODE_SESSION);
+    }
+
+    /**
+     * Returns true if the given type is supported by this store.
+     *
+     * @param int $mode One of cache_store::TYPE_*
+     * @return bool
+     */
+    public static function is_supported_type($type) {
+        return ($type === self::TYPE_FILE);
     }
 
     /**

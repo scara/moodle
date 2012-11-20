@@ -279,6 +279,31 @@ interface cache_store {
     const MODE_REQUEST = 4;
     /**#@-*/
 
+    /**#@+
+     * Constants for the type of a cache store
+     */
+    /**
+     * Memory caches. Example: memcached and its drop-in replacements.
+     */
+    const TYPE_ANY = 0;
+    /**
+     * Memory caches. Example: memcached and its drop-in replacements.
+     */
+    const TYPE_MEMORY = 1;
+    /**
+     * Database caches. Example: NoSQL.
+     */
+    const TYPE_DATABASE = 2;
+    /**
+     * File caches. Example: default PHP session handler.
+     */
+    const TYPE_FILE = 4;
+    /**
+     * Session caches. Just access to the PHP session whose type depends on Moodle or Server configuration.
+     */
+    const TYPE_SESSION = 8;
+    /**#@-*/
+
     /**
      * Static method to check if the store requirements are met.
      *
@@ -292,6 +317,13 @@ interface cache_store {
      * @param int $mode One of cache_store::MODE_*
      */
     public static function is_supported_mode($mode);
+
+    /**
+     * Static method to check if a store is usable with the given type.
+     *
+     * @param int %type One of cache_store::TYPE_*
+     */
+    public static function is_supported_type($type);
 
     /**
      * Returns the supported features as a binary flag.
@@ -308,6 +340,14 @@ interface cache_store {
      * @return int The supported modes.
      */
     public static function get_supported_modes(array $configuration = array());
+
+    /**
+     * Returns the supported types as a binary flag.
+     *
+     * @param array $configuration The configuration of a store to consider specifically.
+     * @return int The supported types.
+     */
+    public static function get_supported_types(array $configuration = array());
 
     /**
      * Returns true if this cache store instance supports multiple identifiers.

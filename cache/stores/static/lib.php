@@ -95,6 +95,16 @@ class cachestore_static extends static_data_store implements cache_store, cache_
     }
 
     /**
+     * Returns the supported types as a combined int.
+     *
+     * @param array $configuration
+     * @return int
+     */
+    public static function get_supported_types(array $configuration = array()) {
+        return self::TYPE_MEMORY;
+    }
+
+    /**
      * Returns true if the store requirements are met.
      *
      * @return bool
@@ -111,6 +121,16 @@ class cachestore_static extends static_data_store implements cache_store, cache_
      */
     public static function is_supported_mode($mode) {
         return ($mode === self::MODE_REQUEST);
+    }
+
+    /**
+     * Returns true if the given type is supported by this store.
+     *
+     * @param int $type One of cache_store::TYPE_*
+     * @return bool
+     */
+    public static function is_supported_type($type) {
+        return ($type === self::TYPE_MEMORY);
     }
 
     /**

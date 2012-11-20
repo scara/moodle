@@ -172,6 +172,15 @@ class cachestore_mongodb implements cache_store {
     }
 
     /**
+     * Returns an int describing the supported modes.
+     * @param array $configuration
+     * @return int
+     */
+    public static function get_supported_types(array $configuration = array()) {
+        return self::TYPE_DATABASE;
+    }
+
+    /**
      * Initialises the store instance for use.
      *
      * This function is reponsible for making the connection.
@@ -216,6 +225,15 @@ class cachestore_mongodb implements cache_store {
      */
     public static function is_supported_mode($mode) {
         return ($mode == self::MODE_APPLICATION || $mode == self::MODE_SESSION);
+    }
+
+    /**
+     * Returns true if the given type is supported by this store.
+     * @param int $type
+     * @return bool
+     */
+    public static function is_supported_type($type) {
+        return ($type == self::TYPE_DATABASE);
     }
 
     /**

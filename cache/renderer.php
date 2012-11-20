@@ -134,6 +134,7 @@ class core_cache_renderer extends plugin_renderer_base {
             get_string('storeready', 'cache'),
             get_string('stores', 'cache'),
             get_string('modes', 'cache'),
+            get_string('types', 'cache'),
             get_string('supports', 'cache'),
             get_string('actions', 'cache'),
         );
@@ -142,6 +143,7 @@ class core_cache_renderer extends plugin_renderer_base {
             'storeready',
             'stores',
             'modes',
+            'types',
             'supports',
             'actions'
         );
@@ -154,6 +156,13 @@ class core_cache_renderer extends plugin_renderer_base {
             foreach ($plugin['modes'] as $mode => $enabled) {
                 if ($enabled) {
                     $modes[] = get_string('mode_'.$mode, 'cache');
+                }
+            }
+
+            $types = array();
+            foreach ($plugin['types'] as $type => $enabled) {
+                if ($enabled) {
+                    $types[] = get_string('type_'.$type, 'cache');
                 }
             }
 
@@ -201,6 +210,7 @@ class core_cache_renderer extends plugin_renderer_base {
         $table->head = array(
             get_string('definition', 'cache'),
             get_string('mode', 'cache'),
+            get_string('type', 'cache'),
             get_string('component', 'cache'),
             get_string('area', 'cache'),
             get_string('mappings', 'cache'),
@@ -209,6 +219,7 @@ class core_cache_renderer extends plugin_renderer_base {
         $table->colclasses = array(
             'definition',
             'mode',
+            'type',
             'component',
             'area',
             'mappings',
@@ -232,6 +243,7 @@ class core_cache_renderer extends plugin_renderer_base {
             $row = new html_table_row(array(
                 $definition['name'],
                 get_string('mode_'.$definition['mode'], 'cache'),
+                get_string('type_'.$definition['type'], 'cache'),
                 $definition['component'],
                 $definition['area'],
                 $mapping,

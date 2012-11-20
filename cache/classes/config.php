@@ -187,11 +187,16 @@ class cache_config {
             }
             if (!array_key_exists('configuration', $store) || !is_array($store['configuration'])) {
                 $store['configuration'] = array();
+            } else if (!array_key_exists('type', $store['configuration'])) {
+                $store['configuration']['type'] = cache_store::TYPE_ANY;
             }
             $store['class'] = $class;
             $store['default'] = !empty($store['default']);
             if (!array_key_exists('lock', $store) || !array_key_exists($store['lock'], $this->configlocks)) {
                 $store['lock'] = $defaultlock;
+            }
+            if (!array_key_exists('type', $store)) {
+                $store['type'] = cache_store::TYPE_ANY;
             }
 
             $this->configstores[$store['name']] = $store;
@@ -345,17 +350,21 @@ class cache_config {
     }
 
     /**
-     * Returns all of the stores that are suitable for the given mode and requirements.
+     * Returns all of the stores that are suitable for the given mode, type and requirements.
      *
      * @param int $mode One of cache_store::MODE_*
+     * @param int $type One of cache_store::TYPE_*
      * @param int $requirements The requirements of the cache as a binary flag
      * @return array An array of suitable stores.
      */
-    public function get_stores($mode, $requirements = 0) {
+    public function get_stores($mode, $type = cache_store::TYPE_ANY, $requirements = 0) {
         $stores = array();
         foreach ($this->configstores as $name => $store) {
-            // If the mode is supported and all of the requirements are provided features.
-            if (($store['modes'] & $mode) && ($store['features'] & $requirements) === $requirements) {
+            // If the mode&type are supported and all of the requirements are provided features.
+            if ($store['modes'] & $mode &&
+                (($store['type'] === cache_store::TYPE_ANY) || ($store['type'] & $type)) &&
+                ($store['features'] & $requirements
+                ) === $requirements) {
                 $stores[$name] = $store;
             }
         }
@@ -379,7 +388,7 @@ class cache_config {
             return array();
         }
 
-        $availablestores = $this->get_stores($definition->get_mode(), $definition->get_requirements_bin());
+        $availablestores = $this->get_stores($definition->get_mode(), $definition->get_type(), $definition->get_requirements_bin());
         $stores = array();
         $id = $definition->get_id();
 
@@ -405,7 +414,7 @@ class cache_config {
             $mode = $definition->get_mode();
             // Load the default stores.
             foreach ($this->configmodemappings as $mapping) {
-                if ($mapping['mode'] === $mode && array_key_exists($mapping['store'], $availablestores)) {
+                if (($mapping['mode'] === $mode) && array_key_exists($mapping['store'], $availablestores)) {
                     $store = $availablestores[$mapping['store']];
                     if (empty($store['mappingsonly'])) {
                         $stores[$mapping['store']] = $store;

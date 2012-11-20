@@ -149,6 +149,7 @@ class cache_config_writer extends cache_config {
             'configuration' => $configuration,
             'features' => $class::get_supported_features($configuration),
             'modes' => $class::get_supported_modes($configuration),
+            'types' => $class::get_supported_types($configuration),
             'mappingsonly' => !empty($configuration['mappingsonly']),
             'class' => $class,
             'default' => false
@@ -244,6 +245,7 @@ class cache_config_writer extends cache_config {
             'configuration' => $configuration,
             'features' => $class::get_supported_features($configuration),
             'modes' => $class::get_supported_modes($configuration),
+            'types' => $class::get_supported_types($configuration),
             'mappingsonly' => !empty($configuration['mappingsonly']),
             'class' => $class,
             'default' => $this->configstores[$name]['default'] // Can't change the default.
@@ -312,6 +314,7 @@ class cache_config_writer extends cache_config {
                 'configuration' => array(),
                 'features' => cachestore_file::get_supported_features(),
                 'modes' => cache_store::MODE_APPLICATION,
+                'types' => cache_store::TYPE_ANY,
                 'default' => true,
             ),
             'default_session' => array(
@@ -320,6 +323,7 @@ class cache_config_writer extends cache_config {
                 'configuration' => array(),
                 'features' => cachestore_session::get_supported_features(),
                 'modes' => cache_store::MODE_SESSION,
+                'types' => cache_store::TYPE_ANY,
                 'default' => true,
             ),
             'default_request' => array(
@@ -328,6 +332,7 @@ class cache_config_writer extends cache_config {
                 'configuration' => array(),
                 'features' => cachestore_static::get_supported_features(),
                 'modes' => cache_store::MODE_REQUEST,
+                'types' => cache_store::TYPE_ANY,
                 'default' => true,
             )
         );
@@ -517,6 +522,16 @@ abstract class cache_administration_helper extends cache_helper {
                     cache_store::MODE_REQUEST =>
                         ($store->get_supported_modes($return) & cache_store::MODE_REQUEST) == cache_store::MODE_REQUEST,
                 ),
+                'types' => array(
+                    cache_store::TYPE_ANY =>
+                    $store->get_supported_modes($return) === cache_store::TYPE_ANY,
+                    cache_store::TYPE_DATABASE =>
+                    ($store->get_supported_modes($return) & cache_store::TYPE_DATABASE) == cache_store::TYPE_DATABASE,
+                    cache_store::TYPE_FILE =>
+                    ($store->get_supported_modes($return) & cache_store::TYPE_FILE) == cache_store::TYPE_FILE,
+                    cache_store::TYPE_SESSION =>
+                    ($store->get_supported_modes($return) & cache_store::TYPE_SESSION) == cache_store::TYPE_SESSION,
+                ),
                 'supports' => array(
                     'multipleidentifiers' => $store->supports_multiple_identifiers(),
                     'dataguarantee' => $store->supports_data_guarantee(),
@@ -563,6 +578,12 @@ abstract class cache_administration_helper extends cache_helper {
                     cache_store::MODE_APPLICATION => ($class::get_supported_modes() & cache_store::MODE_APPLICATION),
                     cache_store::MODE_SESSION => ($class::get_supported_modes() & cache_store::MODE_SESSION),
                     cache_store::MODE_REQUEST => ($class::get_supported_modes() & cache_store::MODE_REQUEST),
+                ),
+                'types' => array(
+                    cache_store::TYPE_ANY => ($class::get_supported_modes() === cache_store::TYPE_ANY),
+                    cache_store::TYPE_DATABASE => ($class::get_supported_modes() & cache_store::TYPE_DATABASE),
+                    cache_store::TYPE_FILE => ($class::get_supported_modes() & cache_store::TYPE_FILE),
+                    cache_store::TYPE_SESSION => ($class::get_supported_modes() & cache_store::TYPE_SESSION),
                 ),
                 'supports' => array(
                     'multipleidentifiers' => ($class::get_supported_features() & cache_store::SUPPORTS_MULTIPLE_IDENTIFIERS),
@@ -643,6 +664,7 @@ abstract class cache_administration_helper extends cache_helper {
                 'id' => $id,
                 'name' => cache_helper::get_definition_name($definition),
                 'mode' => $definition['mode'],
+                'type' => $definition['type'],
                 'component' => $definition['component'],
                 'area' => $definition['area'],
                 'mappings' => $mappings
@@ -873,7 +895,7 @@ abstract class cache_administration_helper extends cache_helper {
         $definition = $factory->create_definition($component, $area);
         $config = cache_config::instance();
         $currentstores = $config->get_stores_for_definition($definition);
-        $possiblestores = $config->get_stores($definition->get_mode(), $definition->get_requirements_bin());
+        $possiblestores = $config->get_stores($definition->get_mode(), $definition->get_type(), $definition->get_requirements_bin());
 
         $defaults = array();
         foreach ($currentstores as $key => $store) {

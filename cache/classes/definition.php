@@ -100,6 +100,8 @@ defined('MOODLE_INTERNAL') || die();
  *          reason or another.
  *     + invalidationevents
  *          [array] An array of events that should cause this cache to invalidate some or all of the items within it.
+ *     + type
+ *          [int] Sets the type for the definition. Must be one of cache_store::TYPE_*
  *
  * For examples take a look at lib/db/caches.php
  *
@@ -121,6 +123,12 @@ class cache_definition {
      * @var int
      */
     protected $mode;
+
+    /**
+     * The mode for the defintion. One of cache_store::TYPE_*
+     * @var int
+     */
+    protected $type;
 
     /**
      * The component this definition is associated with.
@@ -317,7 +325,11 @@ class cache_definition {
         $ttl = 0;
         $mappingsonly = false;
         $invalidationevents = array();
+        $type = cache_store::TYPE_ANY;
 
+        if (array_key_exists('type', $definition)) {
+            $type = (int)$definition['type'];
+        }
         if (array_key_exists('simplekeys', $definition)) {
             $simplekeys = (bool)$definition['simplekeys'];
         }
@@ -423,6 +435,7 @@ class cache_definition {
         $cachedefinition = new cache_definition();
         $cachedefinition->id = $id;
         $cachedefinition->mode = $mode;
+        $cachedefinition->type = $type;
         $cachedefinition->component = $component;
         $cachedefinition->area = $area;
         $cachedefinition->simplekeys = $simplekeys;
@@ -468,6 +481,7 @@ class cache_definition {
         $id = 'adhoc/'.$component.'_'.$area;
         $definition = array(
             'mode' => $mode,
+            'type' => cache_store::TYPE_ANY,
             'component' => $component,
             'area' => $area,
         );
@@ -524,6 +538,14 @@ class cache_definition {
      */
     public function get_mode() {
         return $this->mode;
+    }
+
+    /**
+     * Returns the type of this definition
+     * @return int One more cache_store::TYPE_
+     */
+    public function get_type() {
+        return $this->type;
     }
 
     /**
