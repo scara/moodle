@@ -362,7 +362,7 @@ class cache_config {
         foreach ($this->configstores as $name => $store) {
             // If the mode&type are supported and all of the requirements are provided features.
             if ($store['modes'] & $mode &&
-                (($store['type'] === cache_store::TYPE_ANY) || ($store['type'] & $type)) &&
+                (($type === cache_store::TYPE_ANY) || ($store['type'] & $type)) &&
                 ($store['features'] & $requirements
                 ) === $requirements) {
                 $stores[$name] = $store;

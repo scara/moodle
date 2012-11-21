@@ -216,7 +216,10 @@ class cache_factory {
             $this->stores[$name] = $store;
         }
         $store = $this->stores[$name];
-        if (!$store->is_ready() || !$store->is_supported_mode($definition->get_mode())) {
+        if (!$store->is_ready() ||
+            !$store->is_supported_mode($definition->get_mode()) ||
+            !(($definition->get_type() === cache_store::TYPE_ANY) || $store->is_supported_type($definition->get_type()))
+        ) {
             return false;
         }
         $store = clone($this->stores[$name]);
