@@ -46,6 +46,7 @@ $string['cannotcallscript'] = 'You cannot call this script in that way';
 $string['cannotcallusgetselecteduser'] = 'You cannot call user_selector::get_selected_user if multi select is true.';
 $string['cannotcreatebackupdir'] = 'Could not create backupdata folder.  The site administrator needs to fix the file permissions';
 $string['cannotcreatecategory'] = 'The category was not inserted';
+$string['cannotcreatedb'] = 'Cannot create database. The site administrator should eventually fix the database user permissions or, better, needs to create the database by her/his own before launching the installation.';
 $string['cannotcreategroup'] = 'Error creating group';
 $string['cannotcreatelangbase'] = 'Error: Could not create base lang directory';
 $string['cannotcreatelangdir'] = 'Cannot create lang directory';
