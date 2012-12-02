@@ -1457,28 +1457,31 @@ class file_storage {
             throw new file_exception('storedfilecannotread', '', $pathname);
         }
 
+        $filesize = filesize($pathname);
+
         if (is_null($contenthash)) {
             $contenthash = sha1_file($pathname);
+        } else if (($filesize === 0) && ($contenthash !== 'da39a3ee5e6b4b0d3255bfef95601890afd80709')) {
+            throw new file_pool_wrong_content_exception($contenthash);
         }
-
-        $filesize = filesize($pathname);
 
         $hashpath = $this->path_from_hash($contenthash);
         $hashfile = "$hashpath/$contenthash";
 
         if (file_exists($hashfile)) {
-            if (filesize($hashfile) !== $filesize) {
-                throw new file_pool_content_exception($contenthash);
-            }
             $newfile = false;
+            $poolfilesize = filesize($hashfile);
+            if ($poolfilesize !== $filesize) {
+                throw new file_pool_already_exists_content_exception($contenthash, $filesize, $poolfilesize);
+            }
 
         } else {
+            $newfile = true;
             if (!is_dir($hashpath)) {
                 if (!mkdir($hashpath, $this->dirpermissions, true)) {
                     throw new file_exception('storedfilecannotcreatefiledirs'); // permission trouble
                 }
             }
-            $newfile = true;
 
             if (!copy($pathname, $hashfile)) {
                 throw new file_exception('storedfilecannotread', '', $pathname);
@@ -1490,7 +1493,6 @@ class file_storage {
             }
             chmod($hashfile, $this->filepermissions); // fix permissions if needed
         }
-
 
         return array($contenthash, $filesize, $newfile);
     }
@@ -1510,18 +1512,19 @@ class file_storage {
 
 
         if (file_exists($hashfile)) {
-            if (filesize($hashfile) !== $filesize) {
-                throw new file_pool_content_exception($contenthash);
-            }
             $newfile = false;
+            $poolfilesize = filesize($hashfile);
+            if ($poolfilesize !== $filesize) {
+                throw new file_pool_already_exists_content_exception($contenthash, $filesize, $poolfilesize);
+            }
 
         } else {
+            $newfile = true;
             if (!is_dir($hashpath)) {
                 if (!mkdir($hashpath, $this->dirpermissions, true)) {
                     throw new file_exception('storedfilecannotcreatefiledirs'); // permission trouble
                 }
             }
-            $newfile = true;
 
             file_put_contents($hashfile, $content);
 

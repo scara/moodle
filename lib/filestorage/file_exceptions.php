@@ -118,6 +118,55 @@ class file_pool_content_exception extends file_exception {
 
 
 /**
+ * Hash file content problem exception: file is empty.
+ *
+ * @package   core_files
+ * @category  files
+ * @copyright 2008 Petr Skoda (http://skodak.org)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class file_pool_wrong_content_exception extends file_exception {
+    /**
+     * Constructor
+     *
+     * @param string $contenthash content hash
+     * @param string $currfilesize file size of the file to be add
+     * @param string $debuginfo extra debug info
+     */
+    public function __construct($contenthash, $debuginfo = null) {
+        parent::__construct('hashpoolfilesizeproblem', $contenthash, $debuginfo);
+    }
+}
+
+
+/**
+ * Hash file content problem exception: size mismatching on adding a new file with the same content.
+ *
+ * @package   core_files
+ * @category  files
+ * @copyright 2008 Petr Skoda (http://skodak.org)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class file_pool_already_exists_content_exception extends file_exception {
+    /**
+     * Constructor
+     *
+     * @param string $contenthash content hash
+     * @param string $currfilesize file size of the file to be add
+     * @param string $poolfilesize file size of the file in the pool
+     * @param string $debuginfo extra debug info
+     */
+    public function __construct($contenthash, $currfilesize, $poolfilesize, $debuginfo = null) {
+        $a = new stdClass();
+        $a->contenthash = $contenthash;
+        $a->currfilesize = $currfilesize;
+        $a->poolfilesize = $poolfilesize;
+        parent::__construct('hashpoolalreadyexistsproblem', $a, $debuginfo);
+    }
+}
+
+
+/**
  * Problem with records in the {files_reference} table
  *
  * @package   core_files
