@@ -39,7 +39,22 @@ require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 
 //authenticate the user
-$token = required_param('token', PARAM_ALPHANUM);
+$token = optional_param('token', '', PARAM_ALPHANUM);
+$relativepath = get_file_argument();
+if (empty($token)) {
+    $args = explode('/', ltrim($relativepath, '/'));
+     // in this case we expect at least:
+     // - the 'token' reserved keyword and the token value
+     // - context, component and filearea
+    if ((count($args) < 5) || ($args[0] !== 'token')) {
+        print_error('missingparam', '', '', 'token');
+    }
+
+    $tokenkeyword = array_shift($args);
+    $token = clean_param(array_shift($args), PARAM_ALPHANUM);
+    $relativepath = '/'. implode('/', $args);
+}
+
 $webservicelib = new webservice();
 $authenticationinfo = $webservicelib->authenticate_user($token);
 
@@ -50,5 +65,4 @@ if (empty($enabledfiledownload)) {
 }
 
 //finally we can serve the file :)
-$relativepath = get_file_argument();
 file_pluginfile($relativepath, 0);
