@@ -78,7 +78,14 @@ if (!empty($scorm->popup)) {
                 } else {
                     $orgidentifier = $sco->organization;
                 }
-                $scoid = $sco->id;
+
+                if (!empty($sco->launch)) {
+                    $scoid = $sco->id;
+                } else {
+                    $scoes = $DB->get_records_select('scorm_scoes', 'scorm = ? AND '.$DB->sql_isnotempty('scorm_scoes', 'launch', false, true), array($scorm->id), 'id', 'id');
+                    $sco = current($scoes);
+                    $scoid = $sco->id;
+                }
             }
             $launch = true;
         }
