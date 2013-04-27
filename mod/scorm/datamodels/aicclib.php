@@ -265,9 +265,11 @@ function scorm_parse_aicc($scorm) {
             if ($launch == 0) {
                 $launch = $id;
             }
+
             if (isset($course->elements)) {
                 foreach ($course->elements as $element) {
                     unset($sco);
+                    $sco = new stdClass();
                     $sco->identifier = $element->system_id;
                     $sco->scorm = $scorm->id;
                     $sco->organization = $course->id;
@@ -331,7 +333,8 @@ function scorm_parse_aicc($scorm) {
                             $dataid = $DB->insert_record('scorm_scoes_data', $scodata);
                         }
                     }
-                    if ($launch==0) {
+
+                    if ($launch == 0) {
                         $launch = $id;
                     }
                 }
