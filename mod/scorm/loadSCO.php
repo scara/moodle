@@ -102,6 +102,29 @@ if (!isset($sco)) {
     $sco = current($scoes);
 }
 
+// MDL-37529 In case of having selected a different SCO from what requested via params,
+// activate it within the TOC to allow the API to be reloaded, targetting the new SCO.
+if ($scoid != $sco->id) {
+    // This message below is just for debugging purposes, in case the user would see it.
+    $activitypleasewait = get_string('activitypleasewait', 'scorm') . " [$scoid => $sco->id]";
+    $activatenewsco = <<<EOT
+<html>
+    <head>
+        <script type="text/javascript">
+            // Popup?
+            var doc = opener ? opener.parent : parent;
+            if (doc.mod_scorm_activate_item) {
+                doc.mod_scorm_activate_item('$sco->id');
+            }
+        </script>
+    </head>
+    <body><p>$activitypleasewait</p></body>
+</html>
+EOT;
+    echo $activatenewsco;
+    exit();
+}
+
 if ($sco->scormtype == 'asset') {
     $attempt = scorm_get_last_attempt($scorm->id, $USER->id);
     $element = (scorm_version_check($scorm->version, SCORM_13)) ? 'cmi.completion_status':'cmi.core.lesson_status';

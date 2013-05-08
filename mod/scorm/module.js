@@ -67,12 +67,73 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
             return sb.join("");
         };
 
+        var scorm_tree_find_node_by_scoid = function(scoid) {
+            if (null == scoid) {
+                return null;
+            }
+            var candidate_nodes = scorm_tree_node.getNodesBy(
+                // Find the node(s) matching the regexp below.
+                function(node) {
+                    if (node.title) {
+                        var expression = new RegExp('scoid=(' + scoid + ')&');
+                        var matches = node.title.match(expression);
+                        return (matches !== null);
+                    }
+                    return false;
+                }
+            );
+            // Found a candidate in the tree?
+            if (candidate_nodes) {
+                // Take the first and only: scoid should be unique.
+                return candidate_nodes[0];
+            }
+            // Fallback.
+            return null;
+        }
+
+        var scorm_tree_get_scoid_by_node = function(node) {
+            if (typeof node !== "object") {
+                return null;
+            }
+            var expression = new RegExp('scoid=(\\d+)&');
+            var matches = node.title.match(expression);
+            if (matches) {
+                return matches[1];
+            }
+            return null;
+        }
+
+        var scorm_tree_find_first_launchable_node = function(scoid) {
+            var scorm_first_url = scorm_tree_find_node_by_scoid(scoid);
+            if (scorm_first_url == null) { // This is probably an organization item.
+                scorm_first_url = tree.getRoot().children[0];
+            }
+            if (scorm_first_url == null) { // This is probably a single sco with no children (AICC Direct uses this).
+                scorm_first_url = tree.getRoot();
+            }
+
+            return scorm_first_url;
+        }
+
         var scorm_activate_item = function(node) {
+            if (typeof node === "string") {
+                var scoid = node;
+                node = scorm_tree_find_node_by_scoid(scoid);
+                if (!node) {
+                    // Hack. Someone rewrote the scorm_tree: pickup the first
+                    //       available node and rewrite the 'title' of that node.
+                    node = scorm_tree_find_first_launchable_node(null);
+                    node.title = scoes_nav[scoid].url;
+                }
+            }
             if (!node) {
                 return;
             }
+
             scorm_current_node = node;
             scorm_current_node.highlight();
+            // Be sure that launch_sco is in sync with the current node.
+            launch_sco = scorm_tree_get_scoid_by_node(scorm_current_node);
 
             // remove any reference to the old API
             if (window.API) {
@@ -535,12 +596,7 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
         }
 
         // finally activate the chosen item
-        var scorm_first_url = tree.getRoot().children[0];
-        if (scorm_first_url == null) { // This is probably a single sco with no children (AICC Direct uses this).
-            scorm_first_url = tree.getRoot();
-        }
-        scorm_first_url.title = scoes_nav[launch_sco].url;
-        scorm_activate_item(scorm_first_url);
+        scorm_activate_item(scorm_tree_find_first_launchable_node(launch_sco));
 
         // resizing
         scorm_resize_layout(false);
