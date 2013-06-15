@@ -284,7 +284,7 @@ function scorm_parse_aicc($scorm) {
                     $sco->title = $element->title;
 
                     if (!isset($element->parent) || strtolower($element->parent) == 'root') {
-                        $sco->parent = '/';
+                        $sco->parent = $course->id;
                     } else {
                         $sco->parent = $element->parent;
                     }
