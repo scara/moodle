@@ -758,22 +758,24 @@ EOD;
 
                 // Simply give them the message
                 $output = chat_format_message_manually($message, $info['courseid'], $sender, $info['user']);
-                $this->trace('Delivering message "'.$output->text.'" to '.$this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL]);
+                if ($output !== false) {
+                    $this->trace('Delivering message "'.$output->text.'" to '.$this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL]);
 
-                if($output->beep) {
-                    $this->write_data($this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL], '<embed src="'.$this->_beepsoundsrc.'" autostart="true" hidden="true" />');
-                }
+                    if($output->beep) {
+                        $this->write_data($this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL], '<embed src="'.$this->_beepsoundsrc.'" autostart="true" hidden="true" />');
+                    }
 
-                if($info['quirks'] & QUIRK_CHUNK_UPDATE) {
-                    $output->html .= $GLOBALS['CHAT_DUMMY_DATA'];
-                    $output->html .= $GLOBALS['CHAT_DUMMY_DATA'];
-                    $output->html .= $GLOBALS['CHAT_DUMMY_DATA'];
-                }
+                    if($info['quirks'] & QUIRK_CHUNK_UPDATE) {
+                        $output->html .= $GLOBALS['CHAT_DUMMY_DATA'];
+                        $output->html .= $GLOBALS['CHAT_DUMMY_DATA'];
+                        $output->html .= $GLOBALS['CHAT_DUMMY_DATA'];
+                    }
 
-                if(!$this->write_data($this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL], $output->html)) {
-                    $this->disconnect_session($sessionid);
+                    if(!$this->write_data($this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL], $output->html)) {
+                        $this->disconnect_session($sessionid);
+                    }
+                    //$this->trace('Sent to UID '.$this->sets_info[$sessionid]['userid'].': '.$message->text_);
                 }
-                //$this->trace('Sent to UID '.$this->sets_info[$sessionid]['userid'].': '.$message->text_);
             }
         }
     }
