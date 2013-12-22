@@ -137,7 +137,8 @@ class ChatDaemon {
                     foreach($chatroom['users'] as $sessionid => $userid) {
                         // We will be polling each user as required
                         $this->trace('...shall we poll '.$sessionid.'?');
-                        if($this->sets_info[$sessionid]['chatuser']->lastmessageping < $this->_last_idle_poll) {
+                        if(!empty($this->sets_info[$sessionid]) &&
+                                ($this->sets_info[$sessionid]['chatuser']->lastmessageping < $this->_last_idle_poll)) {
                             $this->trace('YES!');
                             // This user hasn't been polled since his last message
                             if($this->write_data($this->conn_sets[$sessionid][CHAT_CONNECTION_CHANNEL], '<!-- poll -->') === false) {
