@@ -248,6 +248,7 @@ class ChatDaemon {
         $timenow = time();
 
         if (empty($str)) {
+            $str = new stdClass();
             $str->idle  = get_string("idle", "chat");
             $str->beep  = get_string("beep", "chat");
             $str->day   = get_string("day");
@@ -1029,6 +1030,11 @@ while(true) {
                 if (strlen($data) == 2048) { // socket_read has more data, ignore all data
                     $DAEMON->trace('UFO with '.$handle.': Data too long; connection closed', E_USER_WARNING);
                     $DAEMON->dismiss_ufo($handle, true, 'Data too long; connection closed');
+                    continue;
+                }
+
+                if (strpos($data, 'GET /favicon.ico HTTP') === 0) {
+                    // Known malformed data, drop it without any further notice.
                     continue;
                 }
 
