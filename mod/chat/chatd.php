@@ -137,7 +137,7 @@ class ChatDaemon {
                     foreach($chatroom['users'] as $sessionid => $userid) {
                         // We will be polling each user as required
                         $this->trace('...shall we poll '.$sessionid.'?');
-                        if(!empty($this->sets_info[$sessionid]) &&
+                        if (!empty($this->sets_info[$sessionid]) && isset($this->sets_info[$sessionid]['chatuser']) &&
                                 ($this->sets_info[$sessionid]['chatuser']->lastmessageping < $this->_last_idle_poll)) {
                             $this->trace('YES!');
                             // This user hasn't been polled since his last message
@@ -224,6 +224,11 @@ class ChatDaemon {
         // TODO: this can and should be written as a single UPDATE query
         if(empty($this->sets_info[$sessionid])) {
             $this->trace('user_lazy_update() called for an invalid SID: '.$sessionid, E_USER_WARNING);
+            return false;
+        }
+
+        // Does promote_final() already finish its job?
+        if (!isset($this->sets_info[$sessionid]['lastinfocommit'])) {
             return false;
         }
 
