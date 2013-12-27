@@ -728,7 +728,11 @@ EOD;
         $monitor = array();
         if(!empty($this->conn_ufo)) {
             foreach($this->conn_ufo as $ufoid => $ufo) {
-                $monitor[$ufoid] = $ufo->handle;
+                if (is_resource($ufo->handle)) {
+                    $monitor[$ufoid] = $ufo->handle;
+                } else {
+                    unset($this->conn_ufo[$ufoid]);
+                }
             }
         }
 
