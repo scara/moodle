@@ -34,7 +34,7 @@ echo $OUTPUT->header();
         <input type="text" name="chat_message" id="chat_message" size="60" value="" />
     </form>
 
-    <form action="<?php echo "http://$CFG->chat_serverhost:$CFG->chat_serverport/"; ?>" method="get" target="empty" id="sendform">
+    <form action="<?php echo chat_get_daemon_base_url(); ?>" method="get" target="empty" id="sendform">
         <input type="hidden" name="win" value="message" />
         <input type="hidden" name="chat_message" value="" />
         <input type="hidden" name="chat_msgidnr" value="0" />

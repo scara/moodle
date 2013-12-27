@@ -63,10 +63,10 @@ $courseshortname = format_string($course->shortname, true, array('context' => co
  <frameset cols="*,200" border="5" framespacing="no" frameborder="yes" marginwidth="2" marginheight="1">
   <frameset rows="0,*,70" border="0" framespacing="no" frameborder="no" marginwidth="2" marginheight="1">
    <frame src="../empty.php" name="empty" scrolling="auto" noresize marginwidth="2" marginheight="0">
-   <frame src="<?php echo "http://$CFG->chat_serverhost:$CFG->chat_serverport?win=chat&amp;$params"; ?>" scrolling="auto" name="msg" noresize marginwidth="2" marginheight="0">
+   <frame src="<?php echo chat_get_daemon_base_url()."?win=chat&amp;$params"; ?>" scrolling="auto" name="msg" noresize marginwidth="2" marginheight="0">
    <frame src="chatinput.php?<?php echo $params ?>" name="input" scrolling="no" marginwidth="2" marginheight="1">
   </frameset>
-  <frame src="<?php echo "http://$CFG->chat_serverhost:$CFG->chat_serverport?win=users&amp;$params"; ?>" name="users" scrolling="auto" marginwidth="5" marginheight="5">
+  <frame src="<?php echo chat_get_daemon_base_url()."?win=users&amp;$params"; ?>" name="users" scrolling="auto" marginwidth="5" marginheight="5">
  </frameset>
  <noframes>
   Sorry, this version of Moodle Chat needs a browser that handles frames.

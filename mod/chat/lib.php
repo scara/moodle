@@ -96,6 +96,27 @@ function padding($n){
 }
 
 /**
+ * Returns the base URL for the chat daemon, trailing slash included.
+ *
+ * @global object
+ * @return string
+ */
+function chat_get_daemon_base_url() {
+    global $CFG;
+
+    // Secure access?
+    if (!empty($CFG->chat_serverenablesecureaccess)) {
+        return "https://$CFG->chat_serverhost" .
+                ($CFG->chat_serversecureport === 443 ? "" : ":$CFG->chat_serversecureport") .
+                '/';
+    }
+
+    return "http://$CFG->chat_serverhost" .
+            ($CFG->chat_serverport === 80 ? "" : ":$CFG->chat_serverport") .
+            '/';
+}
+
+/**
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
  * will create a new instance and return the id number

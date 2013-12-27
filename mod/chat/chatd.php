@@ -55,7 +55,7 @@ $_SERVER['SERVER_NAME']     = 'dummy';
 $_SERVER['HTTP_USER_AGENT'] = 'dummy';
 
 $_SERVER['SERVER_NAME'] = $CFG->chat_serverhost;
-$_SERVER['PHP_SELF']    = "http://$CFG->chat_serverhost:$CFG->chat_serverport/mod/chat/chatd.php";
+$_SERVER['PHP_SELF']    = chat_get_daemon_base_url() . 'mod/chat/chatd.php';
 
 $safemode = ini_get('safe_mode');
 if(!empty($safemode)) {
@@ -312,7 +312,7 @@ EOD;
             echo "<p><font size=\"1\">";
             echo fullname($userinfo['user'])."<br />";
             echo "<font color=\"#888888\">$str->idle: ".format_time($lastping, $str)."</font> ";
-            echo '<a target="empty" href="http://'.$CFG->chat_serverhost.':'.$CFG->chat_serverport.'/?win=beep&amp;beep='.$userinfo['user']->id.
+            echo '<a target="empty" href="'.chat_get_daemon_base_url().'?win=beep&amp;beep='.$userinfo['user']->id.
                  '&chat_sid='.$sessionid.'">'.$str->beep."</a>\n";
             echo "</font></p>";
             echo "<td></tr>";
@@ -412,7 +412,7 @@ EOD;
 
                 // The refresh value is 2 seconds higher than the configuration variable because we are doing JS refreshes all the time.
                 // However, if the JS doesn't work for some reason, we still want to refresh once in a while.
-                $header .= "Refresh: ".(intval($CFG->chat_refresh_userlist) + 2)."; url=http://$CFG->chat_serverhost:$CFG->chat_serverport/?win=users&".
+                $header .= "Refresh: ".(intval($CFG->chat_refresh_userlist) + 2)."; url=".chat_get_daemon_base_url()."?win=users&".
                            "chat_sid=".$sessionid."\n";
                 $header .= "\n";
 

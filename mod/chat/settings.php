@@ -45,6 +45,12 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('chat_serverport', get_string('serverport', 'chat'),
                        get_string('configserverport', 'chat'), 9111, PARAM_INT));
 
+    $settings->add(new admin_setting_configcheckbox('chat_serverenablesecureaccess', get_string('serverenablesecureaccess', 'chat'),
+                       get_string('configserverenablesecureaccess', 'chat'), 0));
+
+    $settings->add(new admin_setting_configtext('chat_serversecureport', get_string('serversecureport', 'chat'),
+                       get_string('configserversecureport', 'chat'), 9111, PARAM_INT));
+
     $settings->add(new admin_setting_configtext('chat_servermax', get_string('servermax', 'chat'),
                        get_string('configservermax', 'chat'), 100, PARAM_INT));
 }
