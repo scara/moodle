@@ -305,6 +305,27 @@ function scorm_parse($scorm, $full) {
         return;
     }
 
+    // Configure $scorm->launch to be the first real launch-able item.
+    if (($scorm->version != 'ERROR') && ($sco = scorm_get_sco($scorm->launch, SCO_ONLY))) {
+        if ($sco->launch == '') {
+            // $sco represents:
+            // -  AICC: the identity of the course root node;
+            // - SCORM: the identity of the default organization or of the first available organization;
+            // so we need to:
+            // -  AICC: set the first available item, if any, as launch-able at course level;
+            // - SCORM: set the first available item within this organization, if any, as launch-able at course level
+            $scoes = $DB->get_records_select(
+                    'scorm_scoes',
+                    'scorm = ? AND '.$DB->sql_isnotempty('scorm_scoes', 'launch', false, true).' AND id > ?',
+                    array($scorm->id, $scorm->launch),
+                    'sortorder, id');
+            if (count($scoes) > 0) {
+                $sco = current($scoes);
+                $scorm->launch = $sco->id;
+            }
+        }
+    }
+
     $scorm->revision++;
     $scorm->sha1hash = $newhash;
     $DB->update_record('scorm', $scorm);
@@ -897,7 +918,7 @@ function scorm_view_display ($user, $scorm, $action, $cm) {
         }
         ?>
               <br />
-              <input type="hidden" name="scoid"/>
+              <input type="hidden" name="scoid" value="<?php echo $scorm->launch ?>"/>
               <input type="hidden" name="cm" value="<?php echo $cm->id ?>"/>
               <input type="hidden" name="currentorg" value="<?php echo $orgidentifier ?>" />
               <input type="submit" value="<?php print_string('enter', 'scorm') ?>" />

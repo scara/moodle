@@ -273,6 +273,7 @@ function scorm_parse_aicc($scorm) {
                 $id = $DB->insert_record('scorm_scoes', $sco);
             }
 
+            // Set the course structure as launch-able.
             if ($launch == 0) {
                 $launch = $id;
             }
@@ -344,9 +345,6 @@ function scorm_parse_aicc($scorm) {
                             $scodata->value = preg_replace('/<cr>/i', "\r\n", $element->core_vendor);
                             $dataid = $DB->insert_record('scorm_scoes_data', $scodata);
                         }
-                    }
-                    if ($launch==0) {
-                        $launch = $id;
                     }
                 }
             }

@@ -651,6 +651,7 @@ function scorm_parse_scorm($scorm, $manifest) {
                             }
                         }
                     }
+                    // Set the (default) organization identity as launch-able.
                     if (($launch == 0) && ((empty($scoes->defaultorg)) || ($scoes->defaultorg == $identifier))) {
                         $launch = $id;
                     }
