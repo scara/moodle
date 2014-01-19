@@ -2687,4 +2687,34 @@ class core_moodlelib_testcase extends advanced_testcase {
         $expectedarray->imagealt = 'Michael Jordan draining another basket.';
         $this->assertEquals($user, $expectedarray);
     }
+
+    public function test_clean_param_safedir() {
+        $this->assertSame('', clean_param('', PARAM_SAFEDIR));
+        $this->assertSame('', clean_param('.', PARAM_SAFEDIR));
+        $this->assertSame('', clean_param('..', PARAM_SAFEDIR));
+        $this->assertSame('_path_to_folder_', clean_param('/path/to/folder/', PARAM_SAFEDIR));
+        $this->assertSame('_path_to_.ext', clean_param('/path/to/.ext', PARAM_SAFEDIR));
+        $this->assertSame('_path_to_file.', clean_param('/path/to/file.', PARAM_SAFEDIR));
+        $this->assertSame('._currentdirfile.txt', clean_param('./currentdirfile.txt', PARAM_SAFEDIR));
+        $this->assertSame('_very_fast_my.file.store', clean_param('/very/fast/my.file.store', PARAM_SAFEDIR));
+    }
+
+    public function test_clean_param_safepath() {
+        $this->assertSame('', clean_param('', PARAM_SAFEPATH));
+        $this->assertSame('', clean_param('.', PARAM_SAFEPATH));
+        $this->assertSame('', clean_param('..', PARAM_SAFEPATH));
+        $this->assertSame('/path/to/folder', clean_param('/path/to/folder/.', PARAM_SAFEPATH));
+        $this->assertSame('/path/to/folder', clean_param('/path/to/folder/..', PARAM_SAFEPATH));
+        $this->assertSame('/path/to/folder', clean_param('/path/./to/../folder', PARAM_SAFEPATH));
+        $this->assertSame('/path/to/folder', clean_param('/path/to/folder/', PARAM_SAFEPATH));
+        $this->assertSame('/path/to/.ext', clean_param('/path/to/.ext', PARAM_SAFEPATH));
+        $this->assertSame('/path/to/file.', clean_param('/path/to/file.', PARAM_SAFEPATH));
+        // Do not impose an absolute path.
+        $this->assertSame('path/to/folder', clean_param('path/to/folder', PARAM_SAFEPATH));
+        // This is the expected behaviour, opposite to using PARAM_PATH.
+        $this->assertSame('/currentdirfile.txt', clean_param('./currentdirfile.txt', PARAM_SAFEPATH));
+        // MDL-43748
+        $this->assertSame('/very/fast/my.file.store', clean_param('/very/fast/my.file.store', PARAM_SAFEPATH));
+        $this->assertSame('/path/.to/..folder', clean_param('/path/.to/..folder', PARAM_SAFEPATH));
+    }
 }

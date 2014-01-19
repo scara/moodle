@@ -952,12 +952,28 @@ function clean_param($param, $type) {
             return $param;
 
         case PARAM_SAFEDIR:
-            // Remove everything not a-zA-Z0-9_- .
-            return preg_replace('/[^a-zA-Z0-9_-]/i', '', $param);
+            if ($param === '.' || $param === '..') {
+                $param = '';
+            }
+            // Convert slashes into underscores.
+            $param = preg_replace('~\/~', '_', $param);
+            // Remove everything not a-zA-Z0-9_-. .
+            return preg_replace('/[^a-zA-Z0-9_\-\.]/i', '', $param);
 
         case PARAM_SAFEPATH:
-            // Remove everything not a-zA-Z0-9/_- .
-            return preg_replace('/[^a-zA-Z0-9\/_-]/i', '', $param);
+            $breadcrumb = explode('/', $param);
+            foreach ($breadcrumb as $key => $crumb) {
+                $breadcrumb[$key] = clean_param($crumb, PARAM_SAFEDIR);
+            }
+            $param = implode('/', $breadcrumb);
+
+            // Remove multiple slashes (///).
+            $param = preg_replace('~//+~', '/', $param);
+
+            // Remove the trailing slash, if any.
+            $param = preg_replace('~/$~', '', $param);
+
+            return $param;
 
         case PARAM_FILE:
             // Strip all suspicious characters from filename.
