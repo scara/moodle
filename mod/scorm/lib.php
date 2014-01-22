@@ -940,7 +940,7 @@ function scorm_pluginfile($course, $cm, $context, $filearea, $args, $forcedownlo
     $lifetime = isset($CFG->filelifetime) ? $CFG->filelifetime : 86400;
 
     if ($filearea === 'content') {
-        $revision = (int)array_shift($args); // prevents caching problems - ignored here
+        $revision = (int)array_shift($args); // Prevents caching problems - ignored here.
         $relativepath = implode('/', $args);
         $fullpath = "/$context->id/mod_scorm/content/0/$relativepath";
         // TODO: add any other access restrictions here if needed!
@@ -949,6 +949,7 @@ function scorm_pluginfile($course, $cm, $context, $filearea, $args, $forcedownlo
         if (!has_capability('moodle/course:manageactivities', $context)) {
             return false;
         }
+        $revision = (int)array_shift($args); // Prevents caching problems - ignored here.
         $relativepath = implode('/', $args);
         $fullpath = "/$context->id/mod_scorm/package/0/$relativepath";
         $lifetime = 0; // no caching here
