@@ -306,7 +306,8 @@ class filestoragelib_testcase extends advanced_testcase {
         $this->assertEquals($contenthash, $file->get_contenthash());
 
         // try break it
-        $this->setExpectedException('file_exception');
+        $this->setExpectedException('file_exception',
+                'Can not create file "1/core/unittest/0/test/newtest.txt" (file exists, cannot rename)');
         // this shall throw exception
         $originalfile->rename($newpath, $newname);
     }
@@ -1154,7 +1155,7 @@ class filestoragelib_testcase extends advanced_testcase {
         $this->assertInstanceOf('stored_file', $file1);
 
         // Creating a file validating unique constraint.
-        $this->setExpectedException('stored_file_creation_exception');
+        $this->setExpectedException('stored_file_creation_exception', 'Can not create file "1/core/phpunit/0/testfile.txt"');
         $fs->create_file_from_storedfile($filerecord, $file1->get_id());
     }
 
@@ -1434,7 +1435,7 @@ class filestoragelib_testcase extends advanced_testcase {
         $this->assertInstanceOf('stored_file', $file1);
 
         // Creating a file validating unique constraint.
-        $this->setExpectedException('stored_file_creation_exception');
+        $this->setExpectedException('stored_file_creation_exception', 'Can not create file "1/core/phpunit/0/testfile.txt"');
         $file2 = $fs->create_file_from_pathname($filerecord, $path);
     }
 
