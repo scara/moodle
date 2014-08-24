@@ -383,6 +383,10 @@ class csv_export_writer {
      * @var resource $fp  File pointer for the csv file.
      */
     protected $fp;
+    /**
+     * @var int $currrownumber  The number, 0-based, of the current row.
+     */
+    protected $currrownumber;
 
     /**
      * Constructor for the csv export reader
@@ -401,6 +405,7 @@ class csv_export_writer {
         }
         $this->filename = "Moodle-data-export.csv";
         $this->mimetype = $mimetype;
+        $this->currrownumber = 0;
     }
 
     /**
@@ -427,8 +432,19 @@ class csv_export_writer {
             $this->set_temp_file_path();
             $this->fp = fopen($this->path, 'w+');
         }
+
+        // Fix the first header in the first row to prevent Excel wrongly claiming for a SYLK file.
+        if ((0 === $this->currrownumber) && ('ID' === $row[0])) {
+            $row[0] = 'Id';
+            debugging("Export CSV file, '$this->filename': the first header of the first row has been changed" .
+                    " from 'ID' to '$row[0]' to avoid Excel wrongly claiming for a SYLK file.", DEBUG_DEVELOPER);
+        }
+
         $delimiter = csv_import_reader::get_delimiter($this->delimiter);
         fputcsv($this->fp, $row, $delimiter, $this->csvenclosure);
+
+        // Data has been successfully written: increase the current row number.
+        $this->currrownumber++;
     }
 
     /**
