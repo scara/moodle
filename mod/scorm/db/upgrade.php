@@ -246,6 +246,21 @@ function xmldb_scorm_upgrade($oldversion) {
             }
             if ($originallaunch != $scorm->launch) {
                 $DB->update_record('scorm', $scorm);
+                // If no tracking data exist for the new launch-able SCO target,
+                // the potential tracking data attached to the wrong launch-able SCO
+                // will be migrated to the new launch-able SCO.
+                $sql = "SELECT COUNT('id')
+                          FROM {scorm_scoes_track}
+                         WHERE scormid = $scorm->id
+                               AND scoid = $scorm->launch";
+                $count = $DB->count_records_sql($sql);
+                if (0 == $count) {
+                    $sql = "UPDATE {scorm_scoes_track}
+                               SET scoid = ?
+                             WHERE scormid = ?
+                                   AND scoid = ?";
+                    $DB->execute($sql, array($scorm->launch, $scorm->id, $originallaunch));
+                }
             }
         }
         $scorms->close();
