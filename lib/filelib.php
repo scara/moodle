@@ -4155,11 +4155,9 @@ function file_pluginfile($relativepath, $forcedownload, $preview = null) {
                 $filename = 'f1';
             }
 
-            if ((!empty($CFG->forcelogin) and !isloggedin()) ||
-                    (!empty($CFG->forceloginforprofileimage) && (!isloggedin() || isguestuser()))) {
-                // protect images if login required and not logged in;
-                // also if login is required for profile images and is not logged in or guest
-                // do not use require_login() because it is expensive and not suitable here anyway
+            if (!empty($CFG->forceloginforprofileimage) && (!isloggedin() || isguestuser())) {
+                // Protect images if login is required for profile images and is not logged in or guest
+                // do not use require_login() because it is expensive and not suitable here anyway.
                 $theme = theme_config::load($themename);
                 redirect($theme->pix_url('u/'.$filename, 'moodle')); // intentionally not cached
             }
@@ -4188,9 +4186,9 @@ function file_pluginfile($relativepath, $forcedownload, $preview = null) {
             }
 
             $options = array('preview' => $preview);
-            if (empty($CFG->forcelogin) && empty($CFG->forceloginforprofileimage)) {
+            if (empty($CFG->forceloginforprofileimage)) {
                 // Profile images should be cache-able by both browsers and proxies according
-                // to $CFG->forcelogin and $CFG->forceloginforprofileimage.
+                // to $CFG->forceloginforprofileimage.
                 $options['cacheability'] = 'public';
             }
             send_stored_file($file, 60*60*24*365, 0, false, $options); // enable long caching, there are many images on each page

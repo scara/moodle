@@ -339,10 +339,8 @@ class user_picture implements renderable {
 
         $defaulturl = $renderer->pix_url('u/'.$filename); // default image
 
-        if ((!empty($CFG->forcelogin) and !isloggedin()) ||
-            (!empty($CFG->forceloginforprofileimage) && (!isloggedin() || isguestuser()))) {
-            // Protect images if login required and not logged in;
-            // also if login is required for profile images and is not logged in or guest
+        if (!empty($CFG->forceloginforprofileimage) && (!isloggedin() || isguestuser())) {
+            // Protect images if login is required for profile images and is not logged in or guest
             // do not use require_login() because it is expensive and not suitable here anyway.
             return $defaulturl;
         }
