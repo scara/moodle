@@ -540,11 +540,25 @@ function SCORMapi1_2(def, cmiobj, cmiint, cmistring256, cmistring4096, scormdebu
         return '&' + underscore('cmi.core.total_time') + '=' + encodeURIComponent(total_time);
     }
 
-    function CollectData(data,parent) {
+    /**
+     * Returns the CMI elements to be committed as key-value pairs (application/x-www-form-urlencoded),
+     * the CMI element as the key and its value being URI encoded.
+     *
+     * @function
+     * @param {object} data The CMI data (elements and values).
+     * @param {string} parent The parent CMI element.
+     * @param {bool} bUpdateDefs Whether to update the default values of the given CMI elements. Optional, defaults to true.
+     * @returns {string} The CMI elements to be committed as key-value pairs,
+     *                   the values being URI encoded (application/x-www-form-urlencoded).
+     */
+    function CollectData(data, parent, bUpdateDefs) {
         var datastring = '';
+        // bUpdateDefs indicates whether to update the default values. Optional, defaults to true.
+        bUpdateDefs = typeof bUpdateDefs !== 'undefined' ? bUpdateDefs : true;
+
         for (property in data) {
             if (typeof data[property] == 'object') {
-                datastring += CollectData(data[property],parent + '.' + property);
+                datastring += CollectData(data[property], parent + '.' + property, bUpdateDefs);
             } else {
                 element = parent + '.' + property;
                 expression = new RegExp(CMIIndex,'g');
@@ -584,13 +598,17 @@ function SCORMapi1_2(def, cmiobj, cmiint, cmistring256, cmistring4096, scormdebu
                                     datastring += elementstring;
 
                                     // update the element default to reflect the current committed value
-                                    eval('datamodel["' + scoid + '"]["' + element + '"].defaultvalue=data[property];');
+                                    if (bUpdateDefs) {
+                                        eval('datamodel["' + scoid + '"]["' + element + '"].defaultvalue=data[property];');
+                                    }
                                 }
                             } else {
                                 // append the URI fragment to the string we plan to commit
                                 datastring += elementstring;
                                 // no default value for the element, so set it now
-                                eval('datamodel["' + scoid + '"]["' + element + '"].defaultvalue=data[property];');
+                                if (bUpdateDefs) {
+                                    eval('datamodel["' + scoid + '"]["' + element + '"].defaultvalue=data[property];');
+                                }
                             }
                         }
                     }
@@ -634,10 +652,10 @@ function SCORMapi1_2(def, cmiobj, cmiint, cmistring256, cmistring4096, scormdebu
                     cmi.core.lesson_status = 'browsed';
                 }
             }
-            datastring = CollectData(data,'cmi');
+            datastring = CollectData(data, 'cmi', false);
             datastring += TotalTime();
         } else {
-            datastring = CollectData(data,'cmi');
+            datastring = CollectData(data, 'cmi', false);
         }
 
         var myRequest = NewHttpReq();
@@ -645,6 +663,11 @@ function SCORMapi1_2(def, cmiobj, cmiint, cmistring256, cmistring4096, scormdebu
         result = DoRequest(myRequest,datamodelurl,datamodelurlparams + datastring);
         results = String(result).split('\n');
         errorCode = results[1];
+        if ('0' === errorCode) {
+            // Data have been successfully stored into the Database: set them as the new default values from now on.
+            CollectData(data, 'cmi', true);
+        }
+
         return results[0];
     }
 
