@@ -60,5 +60,12 @@ if (!is_enabled_auth('ldap')) {
 }
 
 $ldapauth = get_auth_plugin('ldap');
-$ldapauth->sync_users(true);
+try {
+    $ldapauth->sync_users(true);
+} catch (Exception $ex) {
+    if ($DB->is_transaction_started()) {
+        $DB->force_transaction_rollback();
+    }
+    debugging('[AUTH LDAP]: '.$ex->getMessage(), DEBUG_DEVELOPER, $ex->getTrace());
+}
 
