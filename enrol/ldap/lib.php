@@ -838,11 +838,9 @@ class enrol_ldap_plugin extends enrol_plugin {
         require_once($CFG->libdir.'/ldaplib.php');
 
         $ldap_contexts = explode(';', $this->get_config('user_contexts'));
-        $ldap_defaults = ldap_getdefaults();
 
-        return ldap_find_userdn($this->ldapconnection, $userid, $ldap_contexts,
-                                '(objectClass='.$ldap_defaults['objectclass'][$this->get_config('user_type')].')',
-                                $this->get_config('idnumber_attribute'), $this->get_config('user_search_sub'));
+        return ldap_find_userdn($this->ldapconnection, $userid, $ldap_contexts, $this->config->objectclass,
+                $this->get_config('idnumber_attribute'), $this->get_config('user_search_sub'));
     }
 
     /**
