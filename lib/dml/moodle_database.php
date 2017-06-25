@@ -2392,12 +2392,12 @@ abstract class moodle_database {
             return;
         }
 
-        // NOTE: override this methods if following standard compliant SQL
+        // NOTE: override this method if following standard compliant SQL
         //       does not work for your driver.
 
         $columnname = $column->name;
         $sql = "UPDATE {".$table."}
-                       SET $columnname = REPLACE($columnname, ?, ?)
+                       SET $columnname = REPLACE(".$this->sql_column_name_escape($columnname).", ?, ?)
                      WHERE $columnname IS NOT NULL";
 
         if ($column->meta_type === 'X') {
@@ -2407,7 +2407,7 @@ abstract class moodle_database {
             if (core_text::strlen($search) < core_text::strlen($replace)) {
                 $colsize = $column->max_length;
                 $sql = "UPDATE {".$table."}
-                       SET $columnname = " . $this->sql_substr("REPLACE(" . $columnname . ", ?, ?)", 1, $colsize) . "
+                       SET $columnname = " . $this->sql_substr("REPLACE(" . $this->sql_column_name_escape($columnname) . ", ?, ?)", 1, $colsize) . "
                      WHERE $columnname IS NOT NULL";
             }
             $this->execute($sql, array($search, $replace));
