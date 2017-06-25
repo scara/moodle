@@ -4000,6 +4000,47 @@ class core_dml_testcase extends database_driver_testcase {
         $this->assertSame('', $DB->get_field_sql($sql, array('paramvalue' => '')));
     }
 
+    public function test_sql_column_name_escape_provider() {
+        return array(
+            // Reserved: some examples from SQL-92.
+            ["from"],
+            ["table"],
+            ["user"],
+            // Not reserved.
+            ["my_awesome_column_name"]
+        );
+    }
+
+    /**
+     * @dataProvider test_sql_column_name_escape_provider
+     * @param string $columnname The column name to be escaped.
+     **/
+    public function test_sql_column_name_escape($columnname)
+    {
+        $DB = $this->tdb;
+        $dbfamily = $DB->get_dbfamily();
+
+        switch ($dbfamily) {
+            case "mssql":
+                $this->assertSame("[$columnname]", $DB->sql_column_name_escape($columnname));
+                break;
+            case "mysql":
+                $this->assertSame("`$columnname`", $DB->sql_column_name_escape($columnname));
+                break;
+            case "oracle":
+                $this->assertSame('"' . $columnname . '"', $DB->sql_column_name_escape($columnname));
+                break;
+            case "postgres":
+                $this->assertSame('"' . $columnname . '"', $DB->sql_column_name_escape($columnname));
+                break;
+            case "sqlite":
+                $this->assertSame('"' . $columnname . '"', $DB->sql_column_name_escape($columnname));
+                break;
+            default:
+                $this->assertSame($columnname, $DB->sql_column_name_escape($columnname));
+        }
+    }
+
     public function test_sql_concat() {
         $DB = $this->tdb;
         $dbman = $DB->get_manager();

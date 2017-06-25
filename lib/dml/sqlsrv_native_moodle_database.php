@@ -1341,6 +1341,10 @@ class sqlsrv_native_moodle_database extends moodle_database {
         return "$fieldname COLLATE $collation $LIKE $param ESCAPE '$escapechar'";
     }
 
+    public function sql_column_name_escape($columnname) {
+        return "[$columnname]";
+    }
+
     public function sql_concat() {
         $arr = func_get_args();
 

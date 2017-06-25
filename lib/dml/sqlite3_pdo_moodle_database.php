@@ -358,6 +358,10 @@ class sqlite3_pdo_moodle_database extends pdo_moodle_database {
         return $this->delete_records_select($table, $select, $params);
     }
 
+    public function sql_column_name_escape($columnname) {
+        return '"' . $columnname . '"';
+    }
+
     /**
      * Returns the proper SQL to do CONCAT between the elements passed
      * Can take many parameters

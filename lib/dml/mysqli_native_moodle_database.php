@@ -1670,6 +1670,10 @@ class mysqli_native_moodle_database extends moodle_database {
         }
     }
 
+    public function sql_column_name_escape($columnname) {
+        return "`$columnname`";
+    }
+
     /**
      * Returns the proper SQL to do CONCAT between the elements passed
      * Can take many parameters

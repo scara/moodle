@@ -1234,6 +1234,10 @@ class pgsql_native_moodle_database extends moodle_database {
         return " $fieldname::real ";
     }
 
+    public function sql_column_name_escape($columnname) {
+        return '"' . $columnname . '"';
+    }
+
     public function sql_concat() {
         $arr = func_get_args();
         $s = implode(' || ', $arr);

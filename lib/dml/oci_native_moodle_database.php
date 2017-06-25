@@ -1605,6 +1605,10 @@ class oci_native_moodle_database extends moodle_database {
         }
     }
 
+    public function sql_column_name_escape($columnname) {
+        return '"' . $columnname . '"';
+    }
+
     public function sql_concat() {
         $arr = func_get_args();
         if (empty($arr)) {

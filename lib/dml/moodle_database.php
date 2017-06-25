@@ -2141,6 +2141,16 @@ abstract class moodle_database {
     }
 
     /**
+     * Escape the column name, to preserve it when using reserved words.
+     * @param string $columnname The column name.
+     * @return string The escaped column name.
+     */
+    public function sql_column_name_escape($columnname) {
+        // NOTE: override this method to use the proper escape sequence for your driver.
+        return $columnname;
+    }
+
+    /**
      * Returns the proper SQL to do CONCAT between the elements(fieldnames) passed.
      *
      * This function accepts variable number of string parameters.
