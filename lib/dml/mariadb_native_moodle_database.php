@@ -101,4 +101,40 @@ class mariadb_native_moodle_database extends mysqli_native_moodle_database {
         }
         return true;
     }
+
+    public function get_columns($table, $usecache = true) {
+        $version = $this->get_server_info()['version'];
+        // MariaDB 10.2.6 and below acts like MySQL.
+        if (version_compare($version, '10.2.6', '<=')) {
+            return parent::get_columns($table, $usecache);
+        }
+
+        // Otherwise, breaking change since 10.2.7: MDEV-13132.
+        if ($usecache) {
+            if ($this->temptables->is_temptable($table)) {
+                if ($data = $this->get_temp_tables_cache()->get($table)) {
+                    return $data;
+                }
+            } else {
+                if ($data = $this->get_metacache()->get($table)) {
+                    return $data;
+                }
+            }
+        }
+
+        $structure = parent::get_columns($table, $usecache);
+        foreach($structure as $column_name => $column_info) {
+            trim($column_info->default_value, "'");
+        }
+
+        if ($usecache) {
+            if ($this->temptables->is_temptable($table)) {
+                $this->get_temp_tables_cache()->set($table, $structure);
+            } else {
+                $this->get_metacache()->set($table, $structure);
+            }
+        }
+
+        return $structure;
+    }
 }
