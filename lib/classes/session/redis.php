@@ -147,6 +147,10 @@ class redis extends handler {
 
         $this->connection = new \Redis();
 
+        if (\headers_sent()) {
+            $headers = \php_sapi_name() === 'cli' ? \xdebug_get_headers() : \headers_list();
+            var_dump($headers);
+        }
         $result = session_set_save_handler(array($this, 'handler_open'),
             array($this, 'handler_close'),
             array($this, 'handler_read'),

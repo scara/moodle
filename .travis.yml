@@ -116,7 +116,6 @@ install:
         fi
 
 before_script:
-    - phpenv config-rm xdebug.ini
     - >
       if [ "$TASK" = 'PHPUNIT' -o "$TASK" = 'UPGRADE' ];
       then
@@ -245,7 +244,7 @@ script:
     - >
       if [ "$TASK" = 'PHPUNIT' ];
       then
-        vendor/bin/phpunit;
+        vendor/bin/phpunit --verbose core_session_redis_testcase lib/tests/session_redis_test.php;
       fi
 
     - >
