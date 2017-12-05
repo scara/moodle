@@ -547,6 +547,9 @@ init_performance_info();
 
 // Put $OUTPUT in place, so errors can be displayed.
 $OUTPUT = new bootstrap_renderer();
+if (CLI_SCRIPT || PHPUNIT_TEST) {
+    ini_set('default_mimetype', '');
+}
 
 // set handler for uncaught exceptions - equivalent to print_error() call
 if (!PHPUNIT_TEST or PHPUNIT_UTIL) {
