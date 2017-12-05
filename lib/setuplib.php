@@ -1391,7 +1391,9 @@ function disable_output_buffering() {
     error_reporting($olddebug);
 
     // Disable buffering in nginx.
-    header('X-Accel-Buffering: no');
+    if (!CLI_SCRIPT && !PHPUNIT_TEST) {
+        header('X-Accel-Buffering: no');
+    }
 
 }
 
