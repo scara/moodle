@@ -47,10 +47,14 @@ class moodle_phpmailer extends \PHPMailer\PHPMailer\PHPMailer {
      */
     public function __construct(){
         global $CFG;
-        $this->Version   = 'Moodle '.$CFG->version;         // mailer version
-        $this->CharSet   = 'UTF-8';
+
+        $this->CharSet = 'UTF-8';
         // MDL-52637: Disable the automatic TLS encryption added in v5.2.10 (9da56fc1328a72aa124b35b738966315c41ef5c6).
         $this->SMTPAutoTLS = false;
+
+        // Hide PHPMailer version and expose Moodle mailer version.
+        $version = 'Moodle '.$CFG->version;
+        $this->XMailer = 'PHPMailer ' . $version . ' (https://github.com/PHPMailer/PHPMailer)';
 
         if (!empty($CFG->smtpauthtype)) {
             $this->AuthType = $CFG->smtpauthtype;
