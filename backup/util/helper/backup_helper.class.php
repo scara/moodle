@@ -34,7 +34,8 @@ abstract class backup_helper {
      */
     static public function check_and_create_backup_dir($backupid) {
         global $CFG;
-        if (!check_dir_exists($CFG->tempdir . '/backup/' . $backupid, true, true)) {
+        make_backup_temp_directory('');
+        if (!check_dir_exists($CFG->backuptempdir . '/' . $backupid, true, true)) {
             throw new backup_helper_exception('cannot_create_backup_temp_dir');
         }
     }
@@ -50,7 +51,7 @@ abstract class backup_helper {
      */
     static public function clear_backup_dir($backupid, \core\progress\base $progress = null) {
         global $CFG;
-        if (!self::delete_dir_contents($CFG->tempdir . '/backup/' . $backupid, '', $progress)) {
+        if (!self::delete_dir_contents($CFG->backuptempdir . '/' . $backupid, '', $progress)) {
             throw new backup_helper_exception('cannot_empty_backup_temp_dir');
         }
         return true;
@@ -68,7 +69,7 @@ abstract class backup_helper {
      static public function delete_backup_dir($backupid, \core\progress\base $progress = null) {
          global $CFG;
          self::clear_backup_dir($backupid, $progress);
-         return rmdir($CFG->tempdir . '/backup/' . $backupid);
+         return rmdir($CFG->backuptempdir . '/' . $backupid);
      }
 
      /**
@@ -160,10 +161,10 @@ abstract class backup_helper {
         global $CFG;
 
         $status = true;
-        // Get files and directories in the temp backup dir witout descend
-        $list = get_directory_list($CFG->tempdir . '/backup', '', false, true, true);
+        // Get files and directories in the backup temp dir without descend.
+        $list = get_directory_list($CFG->backuptempdir, '', false, true, true);
         foreach ($list as $file) {
-            $file_path = $CFG->tempdir . '/backup/' . $file;
+            $file_path = $CFG->backuptempdir . '/' . $file;
             $moddate = filemtime($file_path);
             if ($status && $moddate < $deletefrom) {
                 //If directory, recurse

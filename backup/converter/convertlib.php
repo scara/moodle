@@ -148,7 +148,7 @@ abstract class base_converter implements loggable {
     public function get_workdir_path() {
         global $CFG;
 
-        return "$CFG->tempdir/backup/$this->workdir";
+        return "$CFG->backuptempdir/$this->workdir";
     }
 
     /**
@@ -157,7 +157,7 @@ abstract class base_converter implements loggable {
     public function get_tempdir_path() {
         global $CFG;
 
-        return "$CFG->tempdir/backup/$this->tempdir";
+        return "$CFG->backuptempdir/$this->tempdir";
     }
 
     /// public static methods //////////////////////////////////////////////////

@@ -72,7 +72,8 @@ if (is_null($course)) {
 $browser = get_file_browser();
 
 // check if tmp dir exists
-$tmpdir = $CFG->tempdir . '/backup';
+make_backup_temp_directory('', false);
+$tmpdir = $CFG->backuptempdir;
 if (!check_dir_exists($tmpdir, true, true)) {
     throw new restore_controller_exception('cannot_create_backup_temp_dir');
 }

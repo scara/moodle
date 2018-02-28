@@ -147,7 +147,7 @@ class cronlib_testcase extends basic_testcase {
     public function test_cron_delete_from_temp($nodes, $expected) {
         global $CFG;
 
-        $tmpdir = $CFG->tempdir;
+        $tmpdir = realpath($CFG->tempdir);
 
         foreach ($nodes as $data) {
             if ($data->isdir) {
@@ -168,7 +168,10 @@ class cronlib_testcase extends basic_testcase {
 
         $actual = array();
         for ($iter->rewind(); $iter->valid(); $iter->next()) {
-            if (!$iter->isDot()) {
+            if (    !$iter->isDot()
+                // Remove the default $CFG->tempdir/backup directory and $CFG->tempdir/htaccess file from this comparison.
+                && !($iter->isDir() && ($iter->getRealPath() === $tmpdir . '/backup'))
+                && !($iter->isFile() && ($iter->getRealPath() === $tmpdir . '/.htaccess'))) {
                 $actual[] = $iter->getRealPath();
             }
         }

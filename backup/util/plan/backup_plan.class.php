@@ -43,7 +43,8 @@ class backup_plan extends base_plan implements loggable {
             throw new backup_plan_exception('wrong_backup_controller_specified');
         }
         $this->controller = $controller;
-        $this->basepath   = $CFG->tempdir . '/backup/' . $controller->get_backupid();
+        make_backup_temp_directory('');
+        $this->basepath   = $CFG->backuptempdir . '/' . $controller->get_backupid();
         $this->excludingdactivities = false;
         parent::__construct('backup_plan');
     }

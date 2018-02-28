@@ -290,7 +290,7 @@ class restore_ui_stage_confirm extends restore_ui_independent_stage implements f
     public function process() {
         global $CFG;
         if ($this->filename) {
-            $archivepath = $CFG->tempdir . '/backup/' . $this->filename;
+            $archivepath = $CFG->backuptempdir . '/' . $this->filename;
             if (!file_exists($archivepath)) {
                 throw new restore_ui_exception('invalidrestorefile');
             }
@@ -322,7 +322,7 @@ class restore_ui_stage_confirm extends restore_ui_independent_stage implements f
 
         $fb = get_file_packer('application/vnd.moodle.backup');
         $result = $fb->extract_to_pathname($source,
-                $CFG->tempdir . '/backup/' . $this->filepath . '/', null, $this);
+                $CFG->backuptempdir . '/' . $this->filepath . '/', null, $this);
 
         // If any progress happened, end it.
         if ($this->startedprogress) {
@@ -474,7 +474,7 @@ class restore_ui_stage_destination extends restore_ui_independent_stage {
      */
     public function process() {
         global $CFG, $DB;
-        if (!file_exists("$CFG->tempdir/backup/".$this->filepath) || !is_dir("$CFG->tempdir/backup/".$this->filepath)) {
+        if (!file_exists("$CFG->backuptempdir/".$this->filepath) || !is_dir("$CFG->backuptempdir/".$this->filepath)) {
             throw new restore_ui_exception('invalidrestorepath');
         }
         if (optional_param('searchcourses', false, PARAM_BOOL)) {

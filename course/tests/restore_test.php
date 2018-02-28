@@ -53,7 +53,7 @@ class core_course_restore_testcase extends advanced_testcase {
         $bc->execute_plan();
 
         $results = $bc->get_results();
-        $results['backup_destination']->extract_to_pathname($packer, "$CFG->tempdir/backup/core_course_testcase");
+        $results['backup_destination']->extract_to_pathname($packer, "$CFG->backuptempdir/core_course_testcase");
 
         $bc->destroy();
         unset($bc);
