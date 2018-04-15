@@ -60,9 +60,9 @@ abstract class backup_factory {
 
         // Create file_logger, observing $CFG->backup_file_logger_level
         // defaulting to $dfltloglevel
-        make_backup_temp_directory(''); // Need to ensure that $CFG->backuptempdir already exists.
+        $backuptempdir = make_backup_temp_directory(''); // Need to ensure that $CFG->backuptempdir already exists.
         $fllevel = isset($CFG->backup_file_logger_level) ? $CFG->backup_file_logger_level : $dfltloglevel;
-        $enabledloggers[] = new file_logger($fllevel, true, true, $CFG->backuptempdir . '/' . $backupid . '.log');
+        $enabledloggers[] = new file_logger($fllevel, true, true, $backuptempdir . '/' . $backupid . '.log');
 
         // Create database_logger, observing $CFG->backup_database_logger_level and defaulting to LOG_WARNING
         // and pointing to the backup_logs table

@@ -1662,6 +1662,20 @@ function make_request_directory($exceptiononerror = true) {
 }
 
 /**
+ * Get the full path of a directory under $CFG->backuptempdir.
+ *
+ * @param string $directory  the relative path of the directory under $CFG->backuptempdir
+ * @return string|false Returns full path to directory given a valid string; otherwise, false.
+ */
+function get_backup_temp_directory($directory) {
+    global $CFG;
+    if (($directory === null) || ($directory === false)) {
+        return false;
+    }
+    return "$CFG->backuptempdir/$directory";
+}
+
+/**
  * Create a directory under $CFG->backuptempdir and make sure it is writable.
  *
  * Do not use for storing generic temp files - see make_temp_directory() instead for this purpose.

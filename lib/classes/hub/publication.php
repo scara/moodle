@@ -375,9 +375,9 @@ class publication {
         global $CFG, $USER;
         require_once($CFG->libdir . "/filelib.php");
 
-        make_backup_temp_directory('');
+        $backuptempdir = make_backup_temp_directory('');
         $filename = md5(time() . '-' . $hubcourseid . '-'. $USER->id . '-'. random_string(20));
-        $path = $CFG->backuptempdir.'/'.$filename.".mbz";
+        $path = $backuptempdir.'/'.$filename.".mbz";
 
         api::download_course_backup($hubcourseid, $path);
 

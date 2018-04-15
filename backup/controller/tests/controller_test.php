@@ -159,7 +159,7 @@ class core_backup_controller_testcase extends advanced_testcase {
 
         $foldername = 'deadlock';
         $fp = get_file_packer('application/vnd.moodle.backup');
-        $tempdir = $CFG->backuptempdir . '/' . $foldername;
+        $tempdir = make_backup_temp_directory($foldername);
         $files = $fp->extract_to_pathname($CFG->dirroot . '/backup/controller/tests/fixtures/deadlock.mbz', $tempdir);
 
         $this->setAdminUser();
