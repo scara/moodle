@@ -1666,13 +1666,13 @@ function make_request_directory($exceptiononerror = true) {
 }
 
 /**
- * Create a directory under backuptempdir and make sure it is writable.
+ * Create a directory under $CFG->backuptempdir and make sure it is writable.
  *
  * Do not use for storing generic temp files - see make_temp_directory() instead for this purpose.
  *
  * Backup temporary files must be on a shared storage.
  *
- * @param string $directory  the full path of the directory to be created under $CFG->backuptempdir
+ * @param string $directory  the relative path of the directory to be created under $CFG->backuptempdir
  * @param bool $exceptiononerror throw exception if error encountered
  * @return string|false Returns full path to directory if successful, false if not; may throw exception
  */
