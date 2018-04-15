@@ -1593,8 +1593,7 @@ function protect_directory($dir) {
 
 /**
  * Create a directory under dataroot and make sure it is writable.
- * Do not use for backup, temporary and cache files - see make_backup_temp_directory(), make_temp_directory()
- * and make_cache_directory(), respectively.
+ * Do not use for temporary and cache files - see make_temp_directory() and make_cache_directory().
  *
  * @param string $directory  the full path of the directory to be created under $CFG->dataroot
  * @param bool $exceptiononerror throw exception if error encountered
@@ -1603,10 +1602,7 @@ function protect_directory($dir) {
 function make_upload_directory($directory, $exceptiononerror = true) {
     global $CFG;
 
-    if (strpos($directory, 'backup/') === 0 or $directory === 'backup') {
-        debugging('Use make_backup_temp_directory() for creation of temporary directory and $CFG->backuptempdir to get the location.');
-
-    } else if (strpos($directory, 'temp/') === 0 or $directory === 'temp') {
+    if (strpos($directory, 'temp/') === 0 or $directory === 'temp') {
         debugging('Use make_temp_directory() for creation of temporary directory and $CFG->tempdir to get the location.');
 
     } else if (strpos($directory, 'cache/') === 0 or $directory === 'cache') {
