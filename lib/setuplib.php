@@ -597,27 +597,108 @@ function get_exception_info($ex) {
     return $info;
 }
 
+
 /**
- * Generate a uuid.
+ * Generate a V4 UUID using available PHP UUID extensions.
  *
- * Unique is hard. Very hard. Attempt to use the PECL UUID functions if available, and if not then revert to
- * constructing the uuid using mt_rand.
+ * @see https://github.com/php/pecl-networking-uuid PECL uuid
+ * @see http://www.ossp.org/pkg/lib/uuid/ OSSP uuid
+ * @see https://tools.ietf.org/html/rfc4122
+ *
+ * @return string The uuid.
+ */
+function generate_uuid_via_php_uuid_extensions() {
+    $uuid = '';
+
+    if (extension_loaded('uuid')) {
+        // Try OSSP uuid extension first.
+        if (function_exists('uuid_export')) {
+            $context = null;
+            if ((uuid_create($context) == UUID_RC_OK) &&
+                // Set V4 version.
+                (uuid_make($context, UUID_MAKE_V4) == UUID_RC_OK) &&
+                (uuid_export($context, UUID_FMT_STR, $uuid) == UUID_RC_OK)) {
+                uuid_destroy($context);
+            }
+        } else if (function_exists('uuid_time')) {
+            // PECL uuid extension installed.
+            // Set V4 version.
+            $uuid = uuid_create(UUID_TYPE_RANDOM);
+        }
+    }
+
+    return trim($uuid);
+}
+
+/**
+ * Generate a V4 UUID using PHP 7+ features.
+ *
+ * @see https://www.php.net/manual/en/function.random-bytes.php
+ * @see https://tools.ietf.org/html/rfc4122
+ *
+ * @return string|bool The uuid when random_bytes() function is available;
+ *                     otherwise, empty string when the function is not available
+ *                     or false when missing the sources of randomness used by random_bytes().
+ */
+function generate_uuid_via_random_bytes() {
+    $uuid = '';
+
+    if (function_exists('random_bytes')) {
+        // If none of the sources of randomness are available,
+        // then an Exception will be thrown.
+        try {
+            $data = random_bytes(16);
+
+            $data[6] = chr((ord($data[6]) & 0x0f) | 0x40); // Set version to 0100.
+            $data[8] = chr((ord($data[8]) & 0x3f) | 0x80); // Set bits 6-7 to 10.
+
+            $uuid = vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+        } catch (Exception $e) {
+            // Could not generate a random string. Is this OS secure?
+            $uuid = false;
+        }
+    }
+
+    return trim($uuid);
+}
+
+
+/**
+ * Generate a V4 UUID.
+ *
+ * Unique is hard. Very hard. Attempt to use the UUID functions if available, and if not then revert to
+ * constructing the uuid using random_bytes or mt_rand.
  *
  * It is important that this token is not solely based on time as this could lead
  * to duplicates in a clustered environment (especially on VMs due to poor time precision).
+ *
+ * @see https://tools.ietf.org/html/rfc4122
  *
  * @return string The uuid.
  */
 function generate_uuid() {
     $uuid = '';
 
-    if (function_exists("uuid_create")) {
-        $context = null;
-        uuid_create($context);
+    /*
+    UUIDs are just 128 bits long but with different supported versions (RFC 4122), mainly two:
+    - V1: the goal is uniqueness, at the cost of anonymity since it is coupled to the host generating it, via its MAC address.
+    - V4: the goal is randomness, at the cost of (rare) collisions.
+    Here, the V4 type is the preferred choice.
+    The format is:
+      xxxxxxxx-xxxx-4xxx-Yxxx-xxxxxxxxxxxx
+    where x is any hexadecimal digit and Y is a random choice from 8, 9, a, or b.
+    */
 
-        uuid_make($context, UUID_MAKE_V4);
-        uuid_export($context, UUID_FMT_STR, $uuid);
-    } else {
+    // Try PHP UUID extensions first.
+    $uuid = generate_uuid_via_php_uuid_extensions();
+
+    // Fall back to better random features, when possible.
+    if (!$uuid) {
+        $uuid = generate_uuid_via_random_bytes();
+    }
+
+    // Finally, create it with the available randomness.
+    if (!$uuid) {
         // Fallback uuid generation based on:
         // "http://www.php.net/manual/en/function.uniqid.php#94959".
         $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
@@ -640,6 +721,7 @@ function generate_uuid() {
             // 48 bits for "node".
             mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff));
     }
+
     return trim($uuid);
 }
 
