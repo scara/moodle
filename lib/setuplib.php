@@ -614,7 +614,7 @@ function get_exception_info($ex) {
  * Generate a V4 UUID using available PHP UUID extensions.
  *
  * @see https://github.com/php/pecl-networking-uuid PECL uuid
- * @see http://www.ossp.org/pkg/lib/uuid/ OSSP uuid
+ * @see http://www.ossp.org/pkg/lib/uuid/ OSSP uuid - No longer available for PHP 7
  * @see https://tools.ietf.org/html/rfc4122
  *
  * @return string The uuid.
@@ -623,17 +623,8 @@ function generate_uuid_via_php_uuid_extensions() {
     $uuid = '';
 
     if (extension_loaded('uuid')) {
-        // Try OSSP uuid extension first.
-        if (function_exists('uuid_export')) {
-            $context = null;
-            if ((uuid_create($context) == UUID_RC_OK) &&
-                // Set V4 version.
-                (uuid_make($context, UUID_MAKE_V4) == UUID_RC_OK) &&
-                (uuid_export($context, UUID_FMT_STR, $uuid) == UUID_RC_OK)) {
-                uuid_destroy($context);
-            }
-        } else if (function_exists('uuid_time')) {
-            // PECL uuid extension installed.
+        // Check if PECL uuid extension has been actually installed.
+        if (function_exists('uuid_time')) {
             // Set V4 version.
             $uuid = uuid_create(UUID_TYPE_RANDOM);
         }
