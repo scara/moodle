@@ -246,7 +246,7 @@ script:
       if [ "$TASK" = 'PHPUNIT' ];
       then
         #vendor/bin/phpunit --fail-on-risky --disallow-test-output --verbose;
-        vendor/bin/phpunit --fail-on-risky --disallow-test-output --verbose lib/tests/session_redis_test.php;
+        vendor/bin/phpunit --stderr --fail-on-risky --disallow-test-output --verbose lib/tests/session_redis_test.php;
       fi
 
     - >
