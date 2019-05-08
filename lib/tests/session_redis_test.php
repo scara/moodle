@@ -34,6 +34,9 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Unit tests for classes/session/redis.php.
  *
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ *
  * @package   core
  * @author    Russell Smith <mr-russ@smith2001.net>
  * @copyright 2016 Russell Smith
