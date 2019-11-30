@@ -76,7 +76,7 @@ class auth_db_testcase extends advanced_testcase {
                 break;
 
             case 'postgres':
-                set_config('type', 'postgres7', 'auth_db');
+                set_config('type', 'postgres8', 'auth_db');
                 $setupsql = "SET NAMES 'UTF-8'";
                 if (!empty($CFG->dboptions['dbschema'])) {
                     $setupsql .= "; SET search_path = '".$CFG->dboptions['dbschema']."'";
