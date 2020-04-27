@@ -119,7 +119,11 @@ if (!empty($options['collation'])) {
     if ($dbcollation->value !== $collation || $dbcharset->value !== $charset) {
         // Try to convert the DB.
         echo "Converting database to '$collation' for $CFG->wwwroot:\n";
-        $sql = "ALTER DATABASE $CFG->dbname DEFAULT CHARACTER SET $charset DEFAULT COLLATE = $collation";
+        // Always quote the database name to properly manage those names containing something different
+        // from "plain ASCII" i.e. [0-9,a-z,A-Z$_] (basic Latin letters, digits 0-9, dollar, underscore).
+        $quotestring = $DB->get_manager()->generator->quote_string;
+        $quoteddbname = $quotestring . $CFG->dbname . $quotestring;
+        $sql = "ALTER DATABASE $quoteddbname DEFAULT CHARACTER SET $charset DEFAULT COLLATE = $collation";
         try {
             $DB->change_database_structure($sql);
         } catch (exception $e) {
