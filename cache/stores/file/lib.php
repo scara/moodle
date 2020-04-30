@@ -355,7 +355,7 @@ class cachestore_file extends cache_store implements cache_is_key_aware, cache_i
             return false;
         }
         // Open ensuring the file for reading in binary format.
-        if (!$handle = fopen($file, 'rb')) {
+        if (!$handle = @fopen($file, 'rb')) {
             return false;
         }
         // Lock it up!
