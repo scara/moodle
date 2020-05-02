@@ -703,6 +703,13 @@ abstract class backup_cron_automated_helper {
             } catch (backup_helper_exception $e) {
                 mtrace('Error: ' . $backupfile . ' does not appear to be a valid backup (' . $e->errorcode . ')');
                 continue;
+            } catch (moodle_exception $e) {
+                $msg = 'Error: ' . $backupfile . ' does not appear to be a valid archive (' . $e->errorcode . ')';
+                if ($e->debuginfo) {
+                    $msg = "$msg. $e->debuginfo";
+                }
+                mtrace($msg);
+                continue;
             }
 
             // Make sure this backup concerns the course and site we are looking for.

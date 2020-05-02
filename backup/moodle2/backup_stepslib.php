@@ -2005,7 +2005,7 @@ class backup_zip_contents extends backup_execution_step implements file_progress
         // Read to make sure it is a valid backup. Refer MDL-37877 . Delete it, if found not to be valid.
         try {
             backup_general_helper::get_backup_information_from_mbz($zipfile, $this);
-        } catch (backup_helper_exception $e) {
+        } catch (backup_helper_exception | moodle_exception $e) {
             @unlink($zipfile);
             throw new backup_step_exception('error_zip_packing', '', $e->debuginfo);
         }
