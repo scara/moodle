@@ -258,6 +258,8 @@ abstract class backup_general_helper extends backup_helper {
      * @param string $filepath absolute path to the MBZ file.
      * @param file_progress $progress Progress updates
      * @return stdClass containing information.
+     * @throws backup_helper_exception If the Moodle XML backup file is missing
+     * @throws moodle_exception If there is any error in extracting the archive
      * @since Moodle 2.4
      */
     public static function get_backup_information_from_mbz($filepath, file_progress $progress = null) {

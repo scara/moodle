@@ -135,7 +135,7 @@ class tgz_extractor {
      * @param tgz_extractor_handler $handler Will be called for extracted files
      * @param file_progress $progress Optional progress reporting
      * @return array Array from archive path => true of processed files
-     * @throws moodle_exception If there is any error processing the archive
+     * @throws moodle_exception If there is any error in processing the archive
      */
     public function extract(tgz_extractor_handler $handler, file_progress $progress = null) {
         $this->mode = self::MODE_EXTRACT;
@@ -150,7 +150,7 @@ class tgz_extractor {
      *
      * @param tgz_extractor_handler $handler Optional handler
      * @param file_progress $progress Optional progress reporting
-     * @throws moodle_exception If there is any error processing the archive
+     * @throws moodle_exception If there is any error in opening the gzip file
      */
     protected function extract_or_list(tgz_extractor_handler $handler = null, file_progress $progress = null) {
         // Open archive.
@@ -256,6 +256,7 @@ class tgz_extractor {
      *
      * @param string $block Tar block
      * @param tgz_extractor_handler $handler Will be called for extracted files
+     * @throws moodle_exception In case of invalid magic number
      */
     protected function process_header($block, $handler) {
         // If the block consists entirely of nulls, ignore it. (This happens
@@ -344,6 +345,7 @@ class tgz_extractor {
      *
      * @param string $block Data block
      * @param tgz_extractor_handler $handler Will be called for extracted files
+     * @throws moodle_exception If there is an error in writing the archive
      */
     protected function process_file_block($block, tgz_extractor_handler $handler = null) {
         // Write block into buffer.
@@ -386,7 +388,7 @@ class tgz_extractor {
      * @param int $filesize Size in bytes
      * @param int $mtime File-modified time
      * @param tgz_extractor_handler $handler Will be called for extracted files
-     * @throws moodle_exception
+     * @throws moodle_exception If there is any error in opening the archive
      */
     protected function start_current_file($archivepath, $filesize, $mtime,
             tgz_extractor_handler $handler = null) {
@@ -447,7 +449,7 @@ class tgz_extractor {
      * Closes the current file, calls handler, and sets up data.
      *
      * @param tgz_extractor_handler $handler Will be called for extracted files
-     * @throws moodle_exception If there is an error closing it
+     * @throws moodle_exception If there is an error in closing it
      */
     protected function close_current_file($handler) {
         if ($this->currentfp !== null) {

@@ -164,7 +164,7 @@ class tgz_packer extends file_packer {
      * @param bool $ignoreinvalidfiles true means ignore missing or invalid files, false means abort on any error
      * @param file_progress $progress Progress indicator callback or null if not required
      * @return bool true if file created, false if not
-     * @throws coding_exception If any archive paths do not meet the restrictions
+     * @throws coding_exception If any archive path does not meet the restrictions
      */
     public function archive_to_pathname(array $files, $archivefile,
             $ignoreinvalidfiles=true, file_progress $progress = null) {

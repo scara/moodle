@@ -62,7 +62,7 @@ class mbz_packer extends file_packer {
      * @param file_progress $progress Progress indicator callback or null if not required
      * @return stored_file|bool false if error stored_file instance if ok
      * @throws file_exception If file operations fail
-     * @throws coding_exception If any archive paths do not meet the restrictions
+     * @throws coding_exception If any archive path does not meet the restrictions
      */
     public function archive_to_storage(array $files, $contextid,
             $component, $filearea, $itemid, $filepath, $filename,
@@ -80,7 +80,7 @@ class mbz_packer extends file_packer {
      * @param bool $ignoreinvalidfiles true means ignore missing or invalid files, false means abort on any error
      * @param file_progress $progress Progress indicator callback or null if not required
      * @return bool true if file created, false if not
-     * @throws coding_exception If any archive paths do not meet the restrictions
+     * @throws coding_exception If any archive path does not meet the restrictions
      */
     public function archive_to_pathname(array $files, $archivefile,
             $ignoreinvalidfiles=true, file_progress $progress = null) {
@@ -133,6 +133,7 @@ class mbz_packer extends file_packer {
      *
      * @param string|stored_file $archivefile
      * @return array of file infos
+     * @throws moodle_exception If error
      */
     public function list_files($archivefile) {
         return $this->get_packer_for_read_operation($archivefile)->list_files($archivefile);
