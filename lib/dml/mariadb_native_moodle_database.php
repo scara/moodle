@@ -38,6 +38,9 @@ require_once(__DIR__.'/mysqli_native_moodle_temptables.php');
  */
 class mariadb_native_moodle_database extends mysqli_native_moodle_database {
 
+    /** @var string DB server actual version */
+    protected $serverversion = null;
+
     /**
      * Returns localised database type name
      * Note: can be used before connect()
@@ -79,11 +82,36 @@ class mariadb_native_moodle_database extends mysqli_native_moodle_database {
      * @return array Array containing 'description' and 'version' info
      */
     public function get_server_info() {
-        $version = $this->mysqli->server_info;
-        $matches = null;
-        if (preg_match('/^5\.5\.5-(10\..+)-MariaDB/i', $version, $matches)) {
-            // Looks like MariaDB decided to use these weird version numbers for better BC with MySQL...
-            $version = $matches[1];
+        $version = $this->serverversion;
+        if (empty($version)) {
+            // Initial fallback: the version returned by the PHP client.
+            // Note: it will be prefixed by the RPL_VERSION_HACK starting from 10.x, when not using an authentication plug-in.
+            $version = $this->mysqli->server_info;
+            // Try to query the actual version of the database server instance: some cloud providers, e.g. Azure, put a gateway
+            // in front of the actual instance which reports an "incorrect" version to the PHP client.
+            // Ref.: https://docs.microsoft.com/en-us/azure/mariadb/concepts-supported-versions .
+            $sql = "SELECT VERSION() version;";
+            $result = $this->mysqli->query($sql);
+            if ($result) {
+                if ($rec = $result->fetch_assoc()) {
+                    // The actual server version starts with the following naming scheme: 'X.Y.Z-MariaDB'.
+                    $version = $rec['version'];
+                }
+                $result->close();
+                unset($rec);
+            }
+            // Remove the "replication version hack" prefix, if any: '5.5.5-' (RPL_VERSION_HACK).
+            $version = str_replace('5.5.5-', '', $version);
+            // Remove the MariaDB suffix after the actual version: '-MariaDB'.
+            $pos = stripos($version, "-MariaDB");
+            if ($pos !== false) {
+                // The suffix is "always" there, hardcoded in 'mysql_version.h':
+                // #define MYSQL_SERVER_VERSION		"@VERSION@-MariaDB"
+                // unless someone will change the source code.
+                $version = substr($version, 0, $pos);
+            }
+            // Finally, keep just major, minor and patch versions from the reported MariaDB server version.
+            $this->serverversion = $version;
         }
         return array('description'=>$this->mysqli->server_info, 'version'=>$version);
     }

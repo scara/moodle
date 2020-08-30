@@ -5758,6 +5758,24 @@ EOD;
 
         $dbman->drop_table($table);
     }
+
+    public function test_get_server_info_mariadb() {
+        $DB = $this->tdb;
+        if ($DB->get_dbfamily() != 'mysql') {
+            $this->markTestSkipped("Not MySQL family");
+        }
+        if ($DB->get_dbvendor() != 'mariadb') {
+            $this->markTestSkipped("Not MariaDB");
+        }
+
+        $result = $DB->get_server_info();
+        // MariaDB RPL_VERSION_HACK sanity check: "5.5.5" has never been released!
+        $this->assertNotSame('5.5.5', $result['version'],
+            "Found invalid DB server version i.e. RPL_VERSION_HACK: ${result['version']}");
+        // MariaDB version format is: "X.Y.Z".
+        $this->assertRegExp('/^\d+\.\d+\.\d+$/', $result['version'],
+            "Found invalid DB server version format: ${result['version']}");
+    }
 }
 
 /**
