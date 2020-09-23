@@ -65,12 +65,20 @@ class cachestore_apcu extends cache_store implements cache_is_key_aware, cache_i
      * Static method to check that the APCu stores requirements have been met.
      *
      * It checks that the APCu extension has been loaded and that it has been enabled.
+     * APCu stores are not available when running on CLI but for unit testing purposes.
      *
      * @return bool True if the stores software/hardware requirements have been met and it can be used. False otherwise.
      */
     public static function are_requirements_met() {
-        $enabled = ini_get('apc.enabled') && (php_sapi_name() != "cli" || ini_get('apc.enable_cli'));
-        if (!extension_loaded('apcu') || !$enabled) {
+        // Fail fast if the extension is not available or not enabled.
+        if (!extension_loaded('apcu') || empty(ini_get('apc.enabled'))) {
+            return false;
+        }
+
+        $execfromcli = (PHP_SAPI === 'cli'); // Excluding those running CLI still via the CGI executable ('cgi-fcgi').
+        $execonphpunit = defined('PHPUNIT_TEST') && PHPUNIT_TEST && ini_get('apc.enable_cli');
+        $arereqsmet = !$execfromcli || $execonphpunit;
+        if (!$arereqsmet) {
             return false;
         }
 
